@@ -1,3 +1,4 @@
+//Fix server crash for trigger_camera if move to path_corner with set the same name of target and targetname
 
 void PluginInit()
 {
@@ -22,9 +23,8 @@ void MapStart()
 
 		if ( szTargetName != szTarget )
 			continue;
-		
-//		g_EngineFuncs.ServerPrint( "path_corner, targetname: " + szTargetName + ", target: " + szTarget + "\n" );
-		pEntity.pev.target = "";
+
+		pEntity.pev.target = string_t();
 
 		iCount++;
 	}
