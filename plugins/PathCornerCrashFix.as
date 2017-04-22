@@ -9,7 +9,7 @@ void PluginInit()
 void MapStart()
 {
 	CBaseEntity@ pEntity = null;
-	string szTargetName, szTarget;
+	string szTargetName;
 	int iCount = 0;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "path_corner" ) ) !is null )
@@ -19,9 +19,7 @@ void MapStart()
 		if ( szTargetName.IsEmpty() )
 			continue;
 
-		szTarget = pEntity.pev.target;
-
-		if ( szTargetName != szTarget )
+		if ( szTargetName.Compare( pEntity.pev.target ) != 0 )
 			continue;
 
 		pEntity.pev.target = string_t();
@@ -30,5 +28,5 @@ void MapStart()
 	}
 	
 	if ( iCount > 0 )
-		g_EngineFuncs.ServerPrint( "Fixed " + iCount + " path_corner entities.\n" );
+		g_EngineFuncs.ServerPrint( "[PathCornerCrashFix] Fixed " + iCount + " path_corner entities.\n" );
 }
