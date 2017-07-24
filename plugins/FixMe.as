@@ -35,6 +35,8 @@ void PluginInit()
 	g_hudTxtParam.fadeoutTime = 0;
 
 	g_hudTxtParam.channel = 7;
+	
+	g_EngineFuncs.ServerPrint( "[FixMe] Reloaded...\n" );
 }
 
 HookReturnCode ClientPutInServer( CBasePlayer@ pPlayer )
@@ -87,7 +89,7 @@ void FixMe()
 	CBaseEntity@ pEntity = null;
 	CBaseEntity@ pEnt = null;
 	Vector vecOrigin;
-	string szTargetName, szTarget, szMaster, szModel, szClassName;
+	string szTargetName, szTarget, szMaster, szModel;
 	int iCount = 0;
 	bool bFound = false;
 	bool bHasTarget = false;
@@ -111,18 +113,16 @@ void FixMe()
 
 		while ( ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "*" ) ) !is null && !bFound )
 		{
-			szClassName = pEnt.GetClassname();
-			if ( szClassName == "trigger_teleport" )
+			//if ( pEnt.GetClassname() == "trigger_teleport" )
+			if ( pEnt is pEntity )
 				continue;
 
 			CBaseDelay@ pDelay = cast<CBaseDelay@>( pEnt );
-			if ( pDelay is null )
-				continue;
 
-			if ( pDelay.m_iszKillTarget == szTargetName )
+			if ( pDelay !is null && pDelay.m_iszKillTarget == szTargetName )
 				bFound = true;
 				
-			if ( pEnt.HasTarget( szTargetName ) )
+			if ( szTargetName != pEnt.GetTargetname() && pEnt.HasTarget( szTargetName ) )
 				bHasTarget = true;
 		}
 
