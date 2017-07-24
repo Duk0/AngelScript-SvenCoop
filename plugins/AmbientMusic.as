@@ -3,6 +3,8 @@ void PluginInit()
 {
 	g_Module.ScriptInfo.SetAuthor( "Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
+	
+	g_EngineFuncs.ServerPrint( "[AmbientMusic] Reloaded...\n" );
 }
 
 class AmbientData
@@ -15,9 +17,10 @@ class AmbientData
 
 void MapStart()
 {
-	CBaseEntity@ pEntity = null, pEnt;
+	CBaseEntity@ pEntity = null, pEnt = null;
 	array<AmbientData> pStored;
 	AmbientData data;
+	int iVolume, iTargets;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "ambient_generic" ) ) !is null )
 	{
@@ -26,20 +29,42 @@ void MapStart()
 
 		if ( data.targetname.IsEmpty() || data.message.IsEmpty() )
 			continue;
-			
-		if ( data.message.EndsWith( ".wav", String::CaseInsensitive ) && int( data.targetname.Find( "music", 0, String::CaseInsensitive ) ) == -1 ) //need something to get audio file lenght in seconds (optional miliseconds), simple detect if sound is music or effect
-			continue;
 
 		if ( !pEntity.pev.SpawnFlagBitSet( 1 ) )
 			continue;
 		
-		data.volume = int( pEntity.pev.health );
+		//need something to get audio file lenght in seconds (optional miliseconds), simple detect if sound is music or effect
+		//if ( data.message.EndsWith( ".wav", String::CaseInsensitive ) )
+		if ( data.message.EndsWith( ".wav", String::CaseInsensitive ) && int( data.targetname.Find( "music", 0, String::CaseInsensitive ) ) == -1 )
+			continue;
+
+		iVolume = int( pEntity.pev.health );
+
+		if ( iVolume > 10 )
+			iVolume = 10;
+
+		if ( iVolume == 10 )
+			iVolume -= 8;
+
+		data.volume = iVolume;
 		data.spawnflags = 0;
+		iTargets = 0;
+
+		while ( ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "*" ) ) !is null )
+		{
+			CBaseDelay@ pDelay = cast<CBaseDelay@>( pEnt );
+
+			if ( pDelay !is null && pDelay.m_iszKillTarget == data.targetname )
+				iTargets++;
+
+			if ( pEnt !is pEntity && data.targetname != pEnt.GetTargetname() && pEnt.HasTarget( data.targetname ) )
+				iTargets++;
+		}
 
 		if ( pEntity.pev.SpawnFlagBitSet( 16 ) )
 			data.spawnflags |= 1;
 
-		if ( !pEntity.pev.SpawnFlagBitSet( 32 ) )
+		if ( iTargets > 1 && !pEntity.pev.SpawnFlagBitSet( 32 ) )
 			data.spawnflags |= 2;
 
 		if ( pEntity.pev.SpawnFlagBitSet( 64 ) )
