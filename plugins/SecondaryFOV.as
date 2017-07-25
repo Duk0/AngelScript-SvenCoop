@@ -7,12 +7,24 @@ void PluginInit()
 	g_Module.ScriptInfo.SetAuthor( "Drak|Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
 	
+	g_Hooks.RegisterHook( Hooks::Player::PlayerKilled, @PlayerKilled );
 	g_Hooks.RegisterHook( Hooks::Player::PlayerPreThink, @PlayerPreThink );
 	g_Hooks.RegisterHook( Hooks::Player::ClientPutInServer, @ClientPutInServer );
 	g_Hooks.RegisterHook( Hooks::Weapon::WeaponSecondaryAttack, @WeaponSecondaryAttack );
 
 	@g_pEnable = CCVar( "enable_fov", 1 );
 	@g_pFov = CCVar( "secondary_fov", 45 );
+}
+
+HookReturnCode PlayerKilled( CBasePlayer@ pPlayer, CBaseEntity@ pAttacker, int iGib )
+{
+	if ( pPlayer is null )
+		return HOOK_CONTINUE;
+
+	int iPlayer = pPlayer.entindex();
+	g_hZoomed[iPlayer] = null;
+
+	return HOOK_CONTINUE;
 }
 
 HookReturnCode PlayerPreThink( CBasePlayer@ pPlayer, uint& out uiFlags )
