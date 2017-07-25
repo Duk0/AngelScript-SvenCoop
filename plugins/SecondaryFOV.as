@@ -1,5 +1,5 @@
 
-array<EHandle> g_hZoomed( g_Engine.maxClients + 1, EHandle( null ) );
+array<bool> g_bIsZooming( g_Engine.maxClients + 1, false );
 CCVar@ g_pEnable, g_pFov;
 
 void PluginInit()
@@ -7,24 +7,12 @@ void PluginInit()
 	g_Module.ScriptInfo.SetAuthor( "Drak|Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
 	
-	g_Hooks.RegisterHook( Hooks::Player::PlayerKilled, @PlayerKilled );
 	g_Hooks.RegisterHook( Hooks::Player::PlayerPreThink, @PlayerPreThink );
 	g_Hooks.RegisterHook( Hooks::Player::ClientPutInServer, @ClientPutInServer );
 	g_Hooks.RegisterHook( Hooks::Weapon::WeaponSecondaryAttack, @WeaponSecondaryAttack );
 
 	@g_pEnable = CCVar( "enable_fov", 1 );
 	@g_pFov = CCVar( "secondary_fov", 45 );
-}
-
-HookReturnCode PlayerKilled( CBasePlayer@ pPlayer, CBaseEntity@ pAttacker, int iGib )
-{
-	if ( pPlayer is null )
-		return HOOK_CONTINUE;
-
-	int iPlayer = pPlayer.entindex();
-	g_hZoomed[iPlayer] = null;
-
-	return HOOK_CONTINUE;
 }
 
 HookReturnCode PlayerPreThink( CBasePlayer@ pPlayer, uint& out uiFlags )
@@ -38,6 +26,11 @@ HookReturnCode PlayerPreThink( CBasePlayer@ pPlayer, uint& out uiFlags )
 	if ( !pPlayer.IsConnected() || !pPlayer.IsAlive() )
 		return HOOK_CONTINUE;
 
+	int iPlayer = pPlayer.entindex();
+
+	if ( !g_bIsZooming[iPlayer] )
+		return HOOK_CONTINUE;
+
 	CBaseEntity@ pActiveItem = pPlayer.m_hActiveItem.GetEntity();
 	CBasePlayerWeapon@ pWeapon = cast<CBasePlayerWeapon@>( pActiveItem );
 	
@@ -47,17 +40,12 @@ HookReturnCode PlayerPreThink( CBasePlayer@ pPlayer, uint& out uiFlags )
 	if ( pWeapon.m_iId == WEAPON_PYTHON )
 		return HOOK_CONTINUE;
 
-	int iPlayer = pPlayer.entindex();
+	g_bIsZooming[iPlayer] = false;
 
-	@pWeapon = cast<CBasePlayerWeapon@>( g_hZoomed[iPlayer].GetEntity() );
-
-	if ( pWeapon is null || pWeapon.m_iId != WEAPON_PYTHON || !pWeapon.m_fInZoom )
+	if ( pPlayer.m_iFOV == 0 )
 		return HOOK_CONTINUE;
 
-	pWeapon.SetFOV( 0 );
-	pWeapon.m_fInZoom = false;
-
-	g_hZoomed[iPlayer] = null;
+	pPlayer.m_iFOV = 0;
 
 	return HOOK_CONTINUE;
 }
@@ -78,20 +66,16 @@ HookReturnCode WeaponSecondaryAttack( CBasePlayer@ pPlayer, CBasePlayerWeapon@ p
 
 	int iPlayer = pPlayer.entindex();
 
-	if ( pWeapon.m_fInZoom )
+	if ( g_bIsZooming[iPlayer] )
 	{
 		pWeapon.SetFOV( 0 );
-		pWeapon.m_fInZoom = false;
-		
-		g_hZoomed[iPlayer] = null;
+		g_bIsZooming[iPlayer] = false;
 				
 		return HOOK_CONTINUE;
 	}
 			
 	pWeapon.SetFOV( g_pFov.GetInt() );
-	pWeapon.m_fInZoom = true;
-
-	g_hZoomed[iPlayer] = pWeapon;
+	g_bIsZooming[iPlayer] = true;
 
 	return HOOK_CONTINUE;
 }
@@ -102,7 +86,7 @@ HookReturnCode ClientPutInServer( CBasePlayer@ pPlayer )
 		return HOOK_CONTINUE;
 	
 	int iPlayer = pPlayer.entindex();
-	g_hZoomed[iPlayer] = null;
+	g_bIsZooming[iPlayer] = false;
 
 	return HOOK_CONTINUE;
 }
