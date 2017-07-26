@@ -35,7 +35,10 @@ void MapStart()
 		
 		//need something to get audio file lenght in seconds (optional miliseconds), simple detect if sound is music or effect
 		//if ( data.message.EndsWith( ".wav", String::CaseInsensitive ) )
-		if ( data.message.EndsWith( ".wav", String::CaseInsensitive ) && int( data.targetname.Find( "music", 0, String::CaseInsensitive ) ) == -1 )
+		/*if ( data.message.EndsWith( ".wav", String::CaseInsensitive ) && int( data.targetname.Find( "music", 0, String::CaseInsensitive ) ) == -1 )
+			continue;*/
+			
+		if ( int( data.targetname.Find( "music", 0, String::CaseInsensitive ) ) == -1 && int( data.targetname.Find( "song", 0, String::CaseInsensitive ) ) == -1 && int( data.targetname.Find( "bgm", 0, String::CaseInsensitive ) ) == -1 )
 			continue;
 
 		iVolume = int( pEntity.pev.health );
