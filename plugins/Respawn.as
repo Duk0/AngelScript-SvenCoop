@@ -1,7 +1,7 @@
 
-array<CTextMenu@> g_RespawnMenu( g_Engine.maxClients + 1, null );
 array<bool> g_fMoveLivingPlayers( g_Engine.maxClients + 1, true );
 array<bool> g_fRespawnDeadPlayers( g_Engine.maxClients + 1, true );
+RespawnMenu g_RespawnMenu;
 
 void PluginInit()
 {
@@ -43,9 +43,6 @@ HookReturnCode MapChange()
 {
 	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
 	{
-		if ( g_RespawnMenu[iPlayer] !is null )
-			@g_RespawnMenu[iPlayer] = null;
-
 		if ( !g_fMoveLivingPlayers[iPlayer] )
 			g_fMoveLivingPlayers[iPlayer] = true;
 
@@ -58,131 +55,169 @@ HookReturnCode MapChange()
 	return HOOK_CONTINUE;
 }
 
-void actionRespawnMenu( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const CTextMenuItem@ pItem )
+final class RespawnMenu
 {
-	if ( pItem !is null && pPlayer !is null )
+	private CTextMenu@ m_pMenu = null;
+	
+	void Show( CBasePlayer@ pPlayer = null )
 	{
+		if ( m_pMenu is null || !m_pMenu.IsRegistered() )
+			CreateMenu( pPlayer );
+			
+		if ( pPlayer !is null )
+			m_pMenu.Open( 0, 0, pPlayer );
+	}
+	
+	private void RefeshMenu( CBasePlayer@ pPlayer = null )
+	{
+		if ( m_pMenu is null )
+			return;
+
+		if ( !m_pMenu.IsRegistered() )
+			return;
+
+		m_pMenu.Unregister();
+		@m_pMenu = null;
+		
+		Show( pPlayer );
+	}
+	
+	private void CreateMenu( CBasePlayer@ pPlayer = null )
+	{
+		@m_pMenu = CTextMenu( TextMenuPlayerSlotCallback( this.Callback ) );
+
+		m_pMenu.SetTitle( "Player Respawn Menu:\n" );
+		
+		int iPlayer = pPlayer.entindex();
+		m_pMenu.AddItem( "Respawn" );
+		m_pMenu.AddItem( "Revive" );
+		m_pMenu.AddItem( "Kill" );
+		m_pMenu.AddItem( "Respawn All" );
+		m_pMenu.AddItem( "Move Living " + ( g_fMoveLivingPlayers[iPlayer] ? "(On)" : "(Off)" ) );
+		m_pMenu.AddItem( "Respawn Dead " + ( g_fRespawnDeadPlayers[iPlayer] ? "(On)" : "(Off)" ) );
+
+		m_pMenu.Register();
+	}
+	
+	private void Callback( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const CTextMenuItem@ pItem )
+	{
+		// iSlot = 1-10, key 0 is 10
+		if ( pItem is null || pPlayer is null )
+			return;
+		
 		if ( !pPlayer.IsConnected() )
 			return;
 			
 		int iPlayer = pPlayer.entindex();
-		bool bAlive = false;
-		string szData;
-		pItem.m_pUserData.retrieve( szData );
+		bool bRefresh = false;
 
-		if ( szData == "respawn" )
+		switch( iSlot )
 		{
-			if ( pPlayer.IsAlive() )
-				bAlive = true;
-
-			g_PlayerFuncs.RespawnPlayer( pPlayer, g_fMoveLivingPlayers[iPlayer], g_fRespawnDeadPlayers[iPlayer] );
-		}
-
-		if ( szData == "revive" )
-		{
-			bAlive = true;
-
-			if ( !pPlayer.IsAlive() )
+			case 1:
 			{
-				pPlayer.Revive();
-				pPlayer.pev.health = pPlayer.pev.max_health;
-				--pPlayer.m_iDeaths;
-			}
-		}
+				if ( !pPlayer.IsAlive() )
+					bRefresh = true;
 
-		if ( szData == "kill" )
-		{
-			bAlive = true;
-
-			if ( pPlayer.IsAlive() )
-				pPlayer.TakeHealth( -pPlayer.pev.health, DMG_GENERIC );
-		}
-
-		if ( szData == "respawnall" )
-		{
-			if ( pPlayer.IsAlive() )
-				bAlive = true;
-
-			if ( IsPlayerAdminOwner( pPlayer ) )
-			{
-				g_PlayerFuncs.RespawnAllPlayers( g_fMoveLivingPlayers[iPlayer], g_fRespawnDeadPlayers[iPlayer] );
-			}
-			else
-			{
-				for ( int iClient = 1; iClient <= g_Engine.maxClients; ++iClient )
-				{
-					CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iClient );
+				g_PlayerFuncs.RespawnPlayer( pPlayer, g_fMoveLivingPlayers[iPlayer], g_fRespawnDeadPlayers[iPlayer] );
 				
-					if ( pTarget is null || !pTarget.IsConnected() )
-						continue;
-
-					if ( IsPlayerAdminOwner( pTarget ) )
-						continue;
-
-					g_PlayerFuncs.RespawnPlayer( pTarget, g_fMoveLivingPlayers[iPlayer], g_fRespawnDeadPlayers[iPlayer] );
-				}
+				break;
 			}
 
-			string szText = "Moved ";
-			if ( g_fMoveLivingPlayers[iPlayer] )
-				szText += "living";
-			else
-				szText += "dead";
+			case 2:
+			{
+				if ( !pPlayer.IsAlive() )
+				{
+					pPlayer.Revive();
+					pPlayer.pev.health = pPlayer.pev.max_health;
+					--pPlayer.m_iDeaths;
+				}
+				
+				break;
+			}
 
-			if ( g_fRespawnDeadPlayers[iPlayer] )
-				szText += " and respawned";
+			case 3:
+			{
+				if ( pPlayer.IsAlive() )
+					pPlayer.TakeHealth( -pPlayer.pev.health, DMG_GENERIC );
+				
+				break;
+			}
 
-			szText += " all players";
+			case 4:
+			{
+				if ( !pPlayer.IsAlive() )
+					bRefresh = true;
+
+				if ( IsPlayerAdminOwner( pPlayer ) )
+				{
+					g_PlayerFuncs.RespawnAllPlayers( g_fMoveLivingPlayers[iPlayer], g_fRespawnDeadPlayers[iPlayer] );
+				}
+				else
+				{
+					for ( int iClient = 1; iClient <= g_Engine.maxClients; ++iClient )
+					{
+						CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iClient );
 					
-			ShowActivity( pPlayer, szText + "\n" );
-			g_Game.AlertMessage( at_logged, "ADMIN %1: %2\n", pPlayer.pev.netname, szText );
+						if ( pTarget is null || !pTarget.IsConnected() )
+							continue;
+
+						if ( IsPlayerAdminOwner( pTarget ) )
+							continue;
+
+						g_PlayerFuncs.RespawnPlayer( pTarget, g_fMoveLivingPlayers[iPlayer], g_fRespawnDeadPlayers[iPlayer] );
+					}
+				}
+
+				string szText = "Moved ";
+				if ( g_fMoveLivingPlayers[iPlayer] )
+					szText += "living";
+				else
+					szText += "dead";
+
+				if ( g_fRespawnDeadPlayers[iPlayer] )
+					szText += " and respawned";
+
+				szText += " all players";
+						
+				ShowActivity( pPlayer, szText + "\n" );
+				g_Game.AlertMessage( at_logged, "ADMIN %1: %2\n", pPlayer.pev.netname, szText );
+				
+				break;
+			}
+
+			case 5:
+			{
+				g_fMoveLivingPlayers[iPlayer] = !g_fMoveLivingPlayers[iPlayer];
+				bRefresh = true;
+				break;
+			}
+
+			case 6:
+			{
+				g_fRespawnDeadPlayers[iPlayer] = !g_fRespawnDeadPlayers[iPlayer];
+				bRefresh = true;
+				break;
+			}
 		}
 
-		if ( bAlive )
+		if ( !bRefresh )
 		{
-			g_RespawnMenu[iPlayer].Open( 0, 0, pPlayer );
+			Show( pPlayer );
 			return;
 		}
 
-		if ( szData == "movealive" )
-			g_fMoveLivingPlayers[iPlayer] = !g_fMoveLivingPlayers[iPlayer];
-
-		if ( szData == "respawndead" )
-			g_fRespawnDeadPlayers[iPlayer] = !g_fRespawnDeadPlayers[iPlayer];
-		
-		g_Scheduler.SetTimeout( "displayRespawnMenu", 0.01, @pPlayer );
+		g_Scheduler.SetTimeout( this, "RefeshMenu", 0.01, @pPlayer );
 	}
-}
-
-void displayRespawnMenu( CBasePlayer@ pPlayer )
-{
-	if ( pPlayer is null || !pPlayer.IsConnected() )
-		return;
-
-	int iPlayer = pPlayer.entindex();
-	
-	if ( iPlayer > g_Engine.maxClients || iPlayer <= 0 )
-		return;
-
-	@g_RespawnMenu[iPlayer] = CTextMenu( @actionRespawnMenu );
-	g_RespawnMenu[iPlayer].SetTitle( "Player Respawn Menu\n\n" );
-
-	g_RespawnMenu[iPlayer].AddItem( "Respawn", any( "respawn" ) );
-	g_RespawnMenu[iPlayer].AddItem( "Revive", any( "revive" ) );
-	g_RespawnMenu[iPlayer].AddItem( "Kill", any( "kill" ) );
-	g_RespawnMenu[iPlayer].AddItem( "Respawn All", any( "respawnall" ) );
-	g_RespawnMenu[iPlayer].AddItem( "Move Living " + ( g_fMoveLivingPlayers[iPlayer] ? "(On)" : "(Off)" ), any( "movealive" ) );
-	g_RespawnMenu[iPlayer].AddItem( "Respawn Dead " + ( g_fRespawnDeadPlayers[iPlayer] ? "(On)" : "(Off)" ), any( "respawndead" ) );
-
-	g_RespawnMenu[iPlayer].Register();
-	g_RespawnMenu[iPlayer].Open( 0, 0, pPlayer );
 }
 
 void cmdRespawnMenu( const CCommand@ args )
 {
 	CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
 
-	displayRespawnMenu( pPlayer );
+	if ( pPlayer is null || !pPlayer.IsConnected() )
+		return;
+
+	g_RespawnMenu.Show( pPlayer );
 }
 
 void ShowActivity( CBasePlayer@ pPlayer, const string& in szMessage )

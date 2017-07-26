@@ -86,8 +86,8 @@ void MapStart()
 		if ( pEnt is null )
 			continue;
 
-		pEnt.pev.targetname = data.targetname;	
-		pEnt.pev.message = data.message;	
+		pEnt.pev.targetname = data.targetname;
+		pEnt.pev.message = data.message;
 		pEnt.pev.spawnflags = data.spawnflags;
 			
 		g_EntityFuncs.DispatchKeyValue( pEnt.edict(), "volume", data.volume );
