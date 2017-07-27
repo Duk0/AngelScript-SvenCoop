@@ -73,8 +73,11 @@ void RegisterTriggerMP3Audio()
 	if ( !g_dMaps.exists( g_szCurrentMap ) )
 		return;
 
-	g_CustomEntityFuncs.RegisterCustomEntity( "trigger_mp3audio", "trigger_mp3audio" );
-	g_CustomEntityFuncs.RegisterCustomEntity( "target_mp3audio", "target_mp3audio" );
+	for ( uint ui = 2; ui < g_szTrack.length(); ui++ )
+		g_SoundSystem.PrecacheSound( "../media/opfor/" + g_szTrack[ui] + ".mp3" );
+
+	g_CustomEntityFuncs.RegisterCustomEntity( "trigger_music", "trigger_music" );
+	g_CustomEntityFuncs.RegisterCustomEntity( "target_music", "target_music" );
 }
 
 void ReplaceCDAudio()
@@ -123,7 +126,7 @@ void ReplaceCDAudio()
 	{
 		data = pStored[i];
 	
-		@pEnt = g_EntityFuncs.Create( data.istrigger ? "trigger_mp3audio" : "target_mp3audio", g_vecZero, g_vecZero, true );
+		@pEnt = g_EntityFuncs.Create( data.istrigger ? "trigger_music" : "target_music", g_vecZero, g_vecZero, true );
 		if ( pEnt is null )
 			continue;
 			
@@ -219,39 +222,39 @@ int BShiftAudioTrack( float flTrack )
 }
 
 const array<string> g_szTrack = { "dummy", "dummy",
-"half-life01", "prospero01", "half-life12",
-"half-life07", "half-life10", "suspense01",
-"suspense03", "half-life09", "half-life02",
-"half-life13", "half-life04", "half-life15",
-"half-life14", "half-life16", "suspense02",
-"half-life03", "half-life08", "prospero02",
-"half-life05" };
+"OpposingForce01", "OpposingForce02", "OpposingForce03",
+"OpposingForce04", "OpposingForce05", "OpposingForce06",
+"OpposingForce07", "OpposingForce08", "OpposingForce09",
+"OpposingForce10", "OpposingForce11", "OpposingForce12",
+"OpposingForce13", "OpposingForce14", "OpposingForce15",
+"OpposingForce16", "OpposingForce17", "OpposingForce18",
+"OpposingForce19" };
 
-class trigger_mp3audio : ScriptBaseEntity
+class trigger_music : ScriptBaseEntity
 {
-	void Precache()
+/*	void Precache()
 	{
 		BaseClass.Precache();
 
 		string szTrack = GetTrack( int( self.pev.health ) );
 		if ( !szTrack.IsEmpty() )
 			g_Game.PrecacheGeneric( szTrack );
-	}
+	}*/
 	
 	void Spawn()
 	{
 		if ( self.pev.angles != g_vecZero )
 			SetMovedir( self.pev );
 
-		self.pev.movetype 		= MOVETYPE_NONE;
-		self.pev.solid 			= SOLID_TRIGGER;
+		self.pev.movetype = MOVETYPE_NONE;
+		self.pev.solid = SOLID_TRIGGER;
 
 		g_EntityFuncs.SetModel( self, self.pev.model );
 		
 		if ( g_EngineFuncs.CVarGetFloat( "showtriggers" ) == 0 )
 			self.pev.effects |= EF_NODRAW;
 			
-		self.Precache();
+		//self.Precache();
 	}
 	
 	void Touch( CBaseEntity@ pOther )
@@ -284,23 +287,23 @@ class trigger_mp3audio : ScriptBaseEntity
 	}
 }
 
-class target_mp3audio : ScriptBaseEntity
+class target_music : ScriptBaseEntity
 {
-	void Precache()
+/*	void Precache()
 	{
 		BaseClass.Precache();
 
 		string szTrack = GetTrack( int( self.pev.health ) );
 		if ( !szTrack.IsEmpty() )
 			g_Game.PrecacheGeneric( szTrack );
-	}
+	}*/
 	
 	void Spawn()
 	{
-		self.pev.movetype 		= MOVETYPE_NONE;
-		self.pev.solid 			= SOLID_NOT;
+		self.pev.movetype = MOVETYPE_NONE;
+		self.pev.solid = SOLID_NOT;
 			
-		self.Precache();
+	//	self.Precache();
 	}
 
 	void Use( CBaseEntity@ pActivator, CBaseEntity@ pCaller, USE_TYPE useType, float value )
@@ -344,7 +347,7 @@ string GetTrack( int iTrack )
 		return "";
 
 	string szTrack;
-	snprintf( szTrack, "sound/opfor/%1.mp3", szBuff );
+	snprintf( szTrack, "../media/opfor/%1.mp3", szBuff );
 	return szTrack;
 }
 
@@ -352,24 +355,19 @@ void PlayMP3Track( int iTrack )
 {
 	if ( iTrack < -1 || iTrack > 20 )
 	{
-		g_Game.AlertMessage( at_console, "TriggerMP3Audio - Track %d out of range\n" );
+		g_Game.AlertMessage( at_console, "TriggerMusic - Track %d out of range\n" );
 		return;
 	}
 
-	string szCmd;
+	string szTrack = GetTrack( iTrack );
+	if ( szTrack.IsEmpty() )
+		return;
+	
+	CBaseEntity@ pWorld = g_EntityFuncs.Instance( 0 );
 
 	if ( iTrack == -1 )
-		szCmd = ";mp3 stop";
+		g_SoundSystem.StopSound( pWorld.edict(), CHAN_MUSIC, szTrack, false  );
 	else
-	{
-		string szTrack = GetTrack( iTrack );
-		if ( szTrack.IsEmpty() )
-			return;
+		g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, VOL_NORM, ATTN_NONE );
 
-		szCmd = ";mp3 play " + szTrack;
-	}
-
-	NetworkMessage message( MSG_ALL, NetworkMessages::Speaksent );
-	message.WriteString( szCmd );
-	message.End();
 }
