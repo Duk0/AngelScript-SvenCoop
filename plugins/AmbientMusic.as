@@ -37,17 +37,16 @@ void MapStart()
 			continue;
 		
 		//need something to get audio file lenght in seconds (optional miliseconds), simple detect if sound is music or effect	
-		if ( int( data.targetname.Find( "music", 0, String::CaseInsensitive ) ) == -1 && int( data.targetname.Find( "song", 0, String::CaseInsensitive ) ) == -1 && int( data.targetname.Find( "bgm", 0, String::CaseInsensitive ) ) == -1 )
+		if ( !IsMusic( data.targetname ) )
 			continue;
 
 		iVolume = int( pEntity.pev.health );
 
-		if ( iVolume > 10 )
-			iVolume = 10;
-
 		// some music is too loudly
-		if ( iVolume == 10 )
-			iVolume -= 7;
+		if ( iVolume >= 10 )
+			iVolume = 3;
+		else if ( iVolume < 10 )
+			iVolume = 1;
 
 		data.volume = iVolume;
 		data.spawnflags = 0;
@@ -111,4 +110,18 @@ void MapStart()
 	
 	if ( pStored.length() > 0 )
 		g_EngineFuncs.ServerPrint( "[AmbientMusic] Replaced " + pStored.length() + " ambient_generic entities.\n" );
+}
+
+bool IsMusic( const string &in szName )
+{
+	if ( int( szName.Find( "music", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	if ( int( szName.Find( "song", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	if ( int( szName.Find( "bgm", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	if ( int( szName.Find( "musa", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	
+	return false;
 }
