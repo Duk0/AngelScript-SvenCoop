@@ -97,7 +97,6 @@ void MovePlayer( CBasePlayer@ pPlayer, Vector &in vecOrigin )
 			if ( IntToBool( tr.fInOpen ) && !IntToBool( tr.fAllSolid ) && !IntToBool( tr.fStartSolid ) )
 			{
 				pPlayer.SetOrigin( vecNewOrigin );
-				g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "moved: " + vecNewOrigin.ToString() + "\n" );
 				return;
 			}
 		}
