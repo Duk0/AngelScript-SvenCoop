@@ -368,6 +368,7 @@ void PlayMP3Track( int iTrack )
 	if ( iTrack == -1 )
 		g_SoundSystem.StopSound( pWorld.edict(), CHAN_MUSIC, szTrack, false  );
 	else
-		g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, VOL_NORM, ATTN_NONE );
+		g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, 0.5, ATTN_NONE );
+		//g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, VOL_NORM, ATTN_NONE );
 
 }
