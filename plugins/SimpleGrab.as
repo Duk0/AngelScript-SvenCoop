@@ -32,12 +32,8 @@
 const string g_KeyGrab = "$i_grabis";
 const string g_KeyGrabEnt = "$i_grabent";
 const string g_KeyGrabDist = "$f_grabdist";
-const string g_KeyGrabEndX = "$f_grabendx";
-const string g_KeyGrabEndY = "$f_grabendy";
-const string g_KeyGrabEndZ = "$f_grabendz";
-const string g_KeyGrabSaveX = "$f_grabsavex";
-const string g_KeyGrabSaveY = "$f_grabsavey";
-const string g_KeyGrabSaveZ = "$f_grabsavez";
+const string g_KeyGrabEnd = "$v_grabend";
+const string g_KeyGrabSave = "$v_grabsave";
 const string g_KeyGrabFrames = "$f_grabframes";
 const string g_KeyGrabMType = "$i_grabmtype";
 const string g_KeyGrabSType = "$i_grabstype";
@@ -128,7 +124,7 @@ HookReturnCode ClientPutInServer( CBasePlayer@ pPlayer )
 //===========================================================================//
 HookReturnCode PlayerPostThink( CBasePlayer@ pPlayer )
 {
-	if ( pPlayer is null )
+	if ( pPlayer is null || !pPlayer.IsConnected() )
 		return HOOK_CONTINUE;
 
 	CustomKeyvalues@ pCustom = pPlayer.GetCustomKeyvalues();
@@ -137,31 +133,28 @@ HookReturnCode PlayerPostThink( CBasePlayer@ pPlayer )
 	if ( valueKeyGrab.GetInteger() > 0 )
 	{
 		CustomKeyvalue valueEntGrab( pCustom.GetKeyvalue( g_KeyGrabEnt ) );
-		edict_t@ edict = @g_EntityFuncs.IndexEnt( valueEntGrab.GetInteger() );
-		CBaseEntity@ pEntity = g_EntityFuncs.Instance( edict );
+		CBaseEntity@ pEntity = g_EntityFuncs.Instance( valueEntGrab.GetInteger() );
 
 		if ( pEntity !is null )
 		{
 			CustomKeyvalue valueDistance( pCustom.GetKeyvalue( g_KeyGrabDist ) );
 
-			Vector vecViewPos = pPlayer.pev.origin;
+			Vector vecViewPos = pPlayer.GetOrigin();
 
-			Vector vec;
+			Vector vecForward;
 			Vector vecDummy;
-			g_EngineFuncs.AngleVectors( pPlayer.pev.v_angle, vec, vecDummy, vecDummy );
+			g_EngineFuncs.AngleVectors( pPlayer.pev.v_angle, vecForward, vecDummy, vecDummy );
 
 			Vector vOldEndPos;
-			vOldEndPos.x = pCustom.GetKeyvalue( g_KeyGrabEndX ).GetFloat();
-			vOldEndPos.y = pCustom.GetKeyvalue( g_KeyGrabEndY ).GetFloat();
-			vOldEndPos.z = pCustom.GetKeyvalue( g_KeyGrabEndZ ).GetFloat();
+			vOldEndPos = pCustom.GetKeyvalue( g_KeyGrabEnd ).GetVector();
 
-			Vector vNewEndPos = vecViewPos + ( vec * valueDistance.GetFloat());
+			Vector vNewEndPos = vecViewPos + ( vecForward * valueDistance.GetFloat() );
 
-			Vector vUpdatedPos = pEntity.pev.origin + ( vNewEndPos - vOldEndPos );
+			Vector vUpdatedPos = pEntity.GetOrigin() + ( vNewEndPos - vOldEndPos );
 
-			g_EntityFuncs.SetOrigin( pEntity, vUpdatedPos );
+			pEntity.SetOrigin( vUpdatedPos );
 
-			pEntity.pev.oldorigin = vUpdatedPos;
+			//pEntity.pev.oldorigin = vUpdatedPos;
 
 			pEntity.pev.movedir = g_vecZero;
 			pEntity.pev.framerate = 0.0;
@@ -169,9 +162,7 @@ HookReturnCode PlayerPostThink( CBasePlayer@ pPlayer )
 			pEntity.pev.flFallVelocity = 0.0;
 			pEntity.pev.velocity = g_vecZero;
 
-			pCustom.SetKeyvalue( g_KeyGrabEndX, vNewEndPos.x );
-			pCustom.SetKeyvalue( g_KeyGrabEndY, vNewEndPos.y );
-			pCustom.SetKeyvalue( g_KeyGrabEndZ, vNewEndPos.z );
+			pCustom.SetKeyvalue( g_KeyGrabEnd, vNewEndPos );
 		}
 		else 
 		{
@@ -188,7 +179,7 @@ void SetDistanceOffset( CBasePlayer@ pPlayer, float distOffset )
 	CustomKeyvalues@ pCustom = pPlayer.GetCustomKeyvalues();
 	CustomKeyvalue valueKeyGrab( pCustom.GetKeyvalue( g_KeyGrab ) );
 	
-	if (valueKeyGrab.GetInteger() > 0)
+	if ( valueKeyGrab.GetInteger() > 0 )
 	{
 		CustomKeyvalue valueDistance( pCustom.GetKeyvalue( g_KeyGrabDist ) );
 		float distance = valueDistance.GetFloat() + distOffset;
@@ -201,6 +192,9 @@ CClientCommand g_Push( "push", "Push a grabbed entity", @Push );
 void Push( const CCommand@ pArgs )
 {
 	CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
+	if ( pPlayer is null || !pPlayer.IsConnected() )
+		return;
+
 	SetDistanceOffset( pPlayer, 35.0 );
 }
 
@@ -209,6 +203,9 @@ CClientCommand g_Pull( "pull", "Pull a grabbed entity", @Pull );
 void Pull( const CCommand@ pArgs )
 {
 	CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
+	if ( pPlayer is null || !pPlayer.IsConnected() )
+		return;
+
 	SetDistanceOffset( pPlayer, -35.0 );
 }
 
@@ -217,20 +214,20 @@ CClientCommand g_UndoGrab( "undograb", "Undo a grab operation", @UndoGrab );
 void UndoGrab( const CCommand@ pArgs )
 {
 	CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
+	if ( pPlayer is null || !pPlayer.IsConnected() )
+		return;
+
 	CustomKeyvalues@ pCustom = pPlayer.GetCustomKeyvalues();
 	CustomKeyvalue valueKeyGrab( pCustom.GetKeyvalue( g_KeyGrab ) );
 	if ( valueKeyGrab.GetInteger() == 0 )
 	{
 		CustomKeyvalue valueEntGrab( pCustom.GetKeyvalue( g_KeyGrabEnt ) );
-		edict_t@ edict = @g_EntityFuncs.IndexEnt( valueEntGrab.GetInteger() );
-		CBaseEntity@ pEntity = g_EntityFuncs.Instance( edict );
+		CBaseEntity@ pEntity = g_EntityFuncs.Instance( valueEntGrab.GetInteger() );
 
-		if ( pEntity !is null )
-		{
-			pEntity.pev.origin.x = pCustom.GetKeyvalue( g_KeyGrabSaveX ).GetFloat();
-			pEntity.pev.origin.y = pCustom.GetKeyvalue( g_KeyGrabSaveY ).GetFloat();
-			pEntity.pev.origin.z = pCustom.GetKeyvalue( g_KeyGrabSaveZ ).GetFloat();
-		}
+		if ( pEntity is null )
+			return;
+
+		pEntity.SetOrigin( pCustom.GetKeyvalue( g_KeyGrabSave ).GetVector() );
 	}
 }
 //===========================================================================//
@@ -238,6 +235,9 @@ CClientCommand g_Grab( "grab", "Grab an entity", @Grab );
 void Grab( const CCommand@ pArgs )
 {
 	CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
+	if ( pPlayer is null || !pPlayer.IsConnected() )
+		return;
+
 	CustomKeyvalues@ pCustom = pPlayer.GetCustomKeyvalues();
 	CustomKeyvalue valueKeyGrab( pCustom.GetKeyvalue( g_KeyGrab ) );
 
@@ -247,12 +247,11 @@ void Grab( const CCommand@ pArgs )
 		pCustom.SetKeyvalue( g_KeyGrab, 0 );
 
 		CustomKeyvalue valueEntGrab( pCustom.GetKeyvalue( g_KeyGrabEnt ) );
-		edict_t@ edict = @g_EntityFuncs.IndexEnt( valueEntGrab.GetInteger() );
-		CBaseEntity@ pEntity = g_EntityFuncs.Instance( edict );
+		CBaseEntity@ pEntity = g_EntityFuncs.Instance( valueEntGrab.GetInteger() );
 
 		if ( pEntity !is null )
 		{
-			g_SoundSystem.PlaySound( pPlayer.edict(), CHAN_STATIC, "items/r_item2.wav", 1.0f, 1.0f, 0, 100 );
+			g_SoundSystem.PlaySound( pEntity.edict(), CHAN_STATIC, "items/r_item2.wav", 1.0f, 1.0f, 0, 100 );
 			g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "UNGRAB: (" + pEntity.GetClassname() + ") - [X: " + pEntity.pev.origin.x + "|Y: " + pEntity.pev.origin.y + " |Z: " + pEntity.pev.origin.z + "]\n" );
 
 			if ( !pEntity.IsBSPModel() )
@@ -273,22 +272,27 @@ void Grab( const CCommand@ pArgs )
 	}
 	else
 	{
-		Vector vecViewPos = pPlayer.pev.origin;
+		Vector vecViewPos = pPlayer.GetOrigin() + pPlayer.pev.view_ofs;
 
-		Vector vec;
+		Vector vecForward;
 		Vector vecDummy;
-		g_EngineFuncs.AngleVectors( pPlayer.pev.v_angle, vec, vecDummy, vecDummy );
+		g_EngineFuncs.AngleVectors( pPlayer.pev.v_angle, vecForward, vecDummy, vecDummy );
 
 		TraceResult tr;
-		g_Utility.TraceLine( vecViewPos, vecViewPos + ( vec * 4096 ), dont_ignore_monsters, pPlayer.edict(), tr );
+		g_Utility.TraceLine( vecViewPos, vecViewPos + ( vecForward * 4096 ), dont_ignore_monsters, pPlayer.edict(), tr );
 		
 		CBaseEntity@ pEntity = g_EntityFuncs.Instance( tr.pHit );
+		//CBaseEntity @pEntity = g_Utility.FindEntityForward( pPlayer, 4096 );
 
 		if ( pEntity !is null && pEntity.GetClassname() != "worldspawn" )
 		{
-			g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "GRAB:		 (" + pEntity.GetClassname() + ") - [X: " + pEntity.pev.origin.x + "|Y: " + pEntity.pev.origin.y + " |Z: " + pEntity.pev.origin.z + "]\n" );
+			Vector vecOrigin = pEntity.GetOrigin();
+			//Vector vecEndPos = pEntity.Center();
+			Vector vecEndPos = tr.vecEndPos;
+			//vecEndPos.z -= pEntity.pev.size.z / 2;
+			g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "GRAB:	  (" + pEntity.GetClassname() + ") - [X: " + vecOrigin.x + "|Y: " + vecOrigin.y + " |Z: " + vecOrigin.z + "]\n" );
 
-			g_SoundSystem.PlaySound( pPlayer.edict(), CHAN_STATIC, "items/r_item1.wav", 1.0f, 1.0f, 0, 100 );
+			g_SoundSystem.PlaySound( pEntity.edict(), CHAN_STATIC, "items/r_item1.wav", 1.0f, 1.0f, 0, 100 );
 			pCustom.SetKeyvalue( g_KeyGrab, 1 );
 			pCustom.SetKeyvalue( g_KeyGrabEnt, pEntity.entindex() );
 			pCustom.SetKeyvalue( g_KeyGrabFrames, pEntity.pev.framerate );
@@ -297,15 +301,10 @@ void Grab( const CCommand@ pArgs )
 			pCustom.SetKeyvalue( g_KeyGrabSType, pEntity.pev.solid );
 			pCustom.SetKeyvalue( g_KeyGrabFlags, pEntity.pev.flags );
 
-			pCustom.SetKeyvalue( g_KeyGrabEndX, tr.vecEndPos.x );
-			pCustom.SetKeyvalue( g_KeyGrabEndY, tr.vecEndPos.y );
-			pCustom.SetKeyvalue( g_KeyGrabEndZ, tr.vecEndPos.z );
+			pCustom.SetKeyvalue( g_KeyGrabEnd, vecEndPos );
+			pCustom.SetKeyvalue( g_KeyGrabSave, vecOrigin );
 
-			pCustom.SetKeyvalue( g_KeyGrabSaveX, pEntity.pev.origin.x );
-			pCustom.SetKeyvalue( g_KeyGrabSaveY, pEntity.pev.origin.y );
-			pCustom.SetKeyvalue( g_KeyGrabSaveZ, pEntity.pev.origin.z );
-
-			float distance = ( tr.vecEndPos - vecViewPos ).Length();
+			float distance = ( vecEndPos - vecViewPos ).Length();
 			pCustom.SetKeyvalue( g_KeyGrabDist, distance );
 
 			if ( !pEntity.IsBSPModel() && pEntity.IsNetClient() )
