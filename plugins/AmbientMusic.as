@@ -37,7 +37,7 @@ void MapStart()
 			continue;
 		
 		//need something to get audio file lenght in seconds (optional miliseconds), simple detect if sound is music or effect	
-		if ( !IsMusic( data.targetname ) )
+		if ( !IsMusic( data.targetname ) && !IsMusic( data.message ) )
 			continue;
 
 		iVolume = int( pEntity.pev.health );
@@ -52,7 +52,7 @@ void MapStart()
 		data.spawnflags = 0;
 		iTargets = 0;
 
-		// check for loop flag, would be better check audio file
+		// check for loop flag, would be better check audio file // todo trigger_random*
 		while ( ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "*" ) ) !is null )
 		{
 			@pDelay = cast<CBaseDelay@>( pEnt );
@@ -121,6 +121,8 @@ bool IsMusic( const string &in szName )
 	if ( int( szName.Find( "bgm", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	if ( int( szName.Find( "musa", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	if ( int( szName.Find( "hmg_", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	
 	return false;
