@@ -1,4 +1,4 @@
-array<string> m_pMovableEntList = { "func_door", "func_train", "func_tracktrain", "func_plat" };
+array<string> m_pMovableEntList = { "func_door", "func_train", "func_tracktrain", "func_trackchange", "func_plat" };
 int g_iTest = 0;
 
 void PluginInit()
