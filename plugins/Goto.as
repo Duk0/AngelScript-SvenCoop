@@ -1,7 +1,7 @@
 CCVar@ m_pVarGotoEnabled;
 bool m_bGotoEnabled;
 dictionary m_dNoGoto;
-array<string> m_pMovableEntList = { "func_door", "func_train", "func_tracktrain", "func_plat", "func_platrot", "func_rotating" };
+array<string> m_pMovableEntList = { "func_door", "func_train", "func_tracktrain", "func_trackchange", "func_plat", "func_platrot", "func_rotating" };
 GotoMenu g_GotoMenu;
 
 void PluginInit()
@@ -14,6 +14,8 @@ void PluginInit()
 
 	@m_pVarGotoEnabled = CCVar( "goto_enabled", "1", "Enable/Disable Goto", ConCommandFlag::AdminOnly, @GotoCallBack );
 	m_bGotoEnabled = m_pVarGotoEnabled.GetBool();
+	
+	g_EngineFuncs.ServerPrint( "[Goto] Reloaded...\n" );
 }
 
 void MapStart()
@@ -116,6 +118,12 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
 
 	if ( !pPlayer.IsAlive() )
 		return true;
+
+	if ( pPlayer.m_afPhysicsFlags & PFLAG_ONBARNACLE != 0 )
+	{
+		//g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] Cannot teleport while paralyzed!\n" );
+		return true;
+	}
 	
 	CBasePlayer@ pDestPlayer = null;
 	string szPlayerName;
