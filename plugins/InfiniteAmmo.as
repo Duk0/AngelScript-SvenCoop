@@ -59,6 +59,14 @@ void InfiniteAmmoPlayer( int iPlayer )
 {
 	CBasePlayer@ pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
 
+	if ( pPlayer is null || !pPlayer.IsConnected() )
+	{
+		if ( TaskExist( g_pInfiniteAmmoPlayerFunction[iPlayer] ) )
+			g_Scheduler.RemoveTimer( g_pInfiniteAmmoPlayerFunction[iPlayer] );
+
+		return;
+	}
+
 	if ( IsMaxEntsUsed() )
 	{
 		if ( TaskExist( g_pInfiniteAmmoPlayerFunction[iPlayer] ) )
@@ -66,14 +74,6 @@ void InfiniteAmmoPlayer( int iPlayer )
 			
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "OMG too much (" + g_EngineFuncs.NumberOfEntities() + ") created entities!\n" );
 		
-		return;
-	}
-
-	if ( pPlayer is null || !pPlayer.IsConnected() )
-	{
-		if ( TaskExist( g_pInfiniteAmmoPlayerFunction[iPlayer] ) )
-			g_Scheduler.RemoveTimer( g_pInfiniteAmmoPlayerFunction[iPlayer] );
-
 		return;
 	}
 	
