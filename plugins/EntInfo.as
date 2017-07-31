@@ -313,6 +313,10 @@ void InfoEntity( const CCommand@ args )
 
 	dictBYTE.deleteAll();
 	keys.resize(0);
+	
+	int iClassification = pEntity.Classify();
+	if ( iClassification != 0 )
+		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT Classification = " + iClassification + "\n" );
 
 	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
 	if ( pMonster !is null )
