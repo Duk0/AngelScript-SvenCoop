@@ -1,1 +1,1 @@
-# SC_AngelScript
+# Sven Co-op AngelScript
