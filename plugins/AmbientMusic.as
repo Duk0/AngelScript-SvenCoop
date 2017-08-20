@@ -1,4 +1,3 @@
-
 void PluginInit()
 {
 	g_Module.ScriptInfo.SetAuthor( "Duko" );
@@ -22,8 +21,9 @@ void MapStart()
 	CBaseToggle@ pToggle = null;
 	CBaseMonster@ pMonster = null;
 	array<AmbientData> pStored;
-	AmbientData data;
+	AmbientData data, dict;
 	int iVolume, iTargets;
+	dictionary dMusicData;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "ambient_generic" ) ) !is null )
 	{
@@ -44,9 +44,9 @@ void MapStart()
 
 		// some music is too loudly
 		if ( iVolume >= 10 )
-			iVolume = 3;
+			iVolume = 5;
 		else if ( iVolume < 10 )
-			iVolume = 1;
+			iVolume = 2;
 
 		data.volume = iVolume;
 		data.spawnflags = 0;
@@ -84,12 +84,17 @@ void MapStart()
 			data.spawnflags |= 4;
 		
 		// ambient_generic with spawnflags 33 set, normaly starts silent
-		if ( data.spawnflags == 0 && iTargets == 1 && pEntity.pev.SpawnFlagBitSet( 32 ) )
+		if ( data.spawnflags == 0 && iTargets >= 0 && pEntity.pev.SpawnFlagBitSet( 32 ) )
 			data.spawnflags |= 1;
 
-		pStored.insertLast( data );
-
 		g_EntityFuncs.Remove( pEntity );
+
+		if ( dMusicData.get( data.targetname, dict ) && dict.message == data.message && dict.spawnflags == data.spawnflags )
+			continue;
+			
+		dMusicData.set( data.targetname, data );
+
+		pStored.insertLast( data );
 	}
 
 	for ( uint i = 0; i < pStored.length(); i++ )
@@ -123,6 +128,8 @@ bool IsMusic( const string &in szName )
 	if ( int( szName.Find( "musa", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	if ( int( szName.Find( "hmg_", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	if ( int( szName.Find( "theme", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	
 	return false;
