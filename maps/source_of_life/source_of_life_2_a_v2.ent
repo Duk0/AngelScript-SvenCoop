@@ -1,0 +1,25 @@
+"entity"
+{
+"message" "wootguy_txt_co"
+"m_iszValueType" "11"
+"target" "wootguy_life_ui"
+"m_iszValueName" "message"
+"targetname" "wootguy_txt_ci"
+"m_iAppendSpaces" "1"
+"spawnflags" "7"
+"classname" "trigger_changevalue"
+}
+{
+"targetname" "sys7_e01_relay1"
+"target" "sys7_e01_multim1"
+"triggerstate" "1"
+"spawnflags" "1"
+"classname" "trigger_relay"
+}
+{
+"targetname" "sys7_e01_butfix1"
+"m_iszNewValue" "1"
+"m_iszValueName" "wait"
+"target" "sys7_e01_wakebt1"
+"classname" "trigger_changevalue"
+}

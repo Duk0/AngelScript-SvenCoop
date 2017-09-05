@@ -1,0 +1,51 @@
+"entity"
+{
+"message" "wootguy_txt_co"
+"m_iszValueType" "11"
+"target" "wootguy_life_ui"
+"m_iszValueName" "message"
+"targetname" "wootguy_txt_ci"
+"m_iAppendSpaces" "1"
+"spawnflags" "7"
+"classname" "trigger_changevalue"
+}
+{
+"origin" "-1273 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-1273 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-1273 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-1273 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-1273 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-583 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-583 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-583 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-583 -249 -803"
+"classname" "ammo_crossbow"
+}
+{
+"origin" "-583 -249 -803"
+"classname" "ammo_crossbow"
+}
