@@ -119,6 +119,9 @@ void MapStart()
 
 bool IsMusic( const string &in szName )
 {
+	if ( int( szName.Find( "breathing", 0, String::CaseInsensitive ) ) != -1 )
+		return false;
+
 	if ( int( szName.Find( "music", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	if ( int( szName.Find( "song", 0, String::CaseInsensitive ) ) != -1 )
@@ -130,6 +133,8 @@ bool IsMusic( const string &in szName )
 	if ( int( szName.Find( "hmg_", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	if ( int( szName.Find( "theme", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+	if ( int( szName.Find( "intro", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
 	
 	return false;

@@ -62,7 +62,10 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 			}
 
 			if ( DoGoto( pPlayer, szPartName ) )
+			{
 				pParams.ShouldHide = true;
+				return HOOK_HANDLED;
+			}
 
 			return HOOK_CONTINUE;
 		}
@@ -242,6 +245,12 @@ final class GotoMenu
 	
 	void Show( CBasePlayer@ pPlayer = null )
 	{
+		if ( m_pMenu !is null && m_pMenu.IsRegistered() )
+		{
+			m_pMenu.Unregister();
+			@m_pMenu = null;
+		}
+
 		if ( m_pMenu is null || !m_pMenu.IsRegistered() )
 			CreateMenu( pPlayer );
 			
