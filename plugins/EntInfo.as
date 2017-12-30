@@ -317,6 +317,8 @@ void InfoEntity( const CCommand@ args )
 	int iClassification = pEntity.Classify();
 	if ( iClassification != 0 )
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT Classification = " + iClassification + "\n" );
+	
+	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B Entity is moving = " + ( pEntity.IsMoving() ? "Yes" : "No" ) + "\n" );
 
 	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
 	if ( pMonster !is null )
@@ -332,6 +334,8 @@ void InfoEntity( const CCommand@ args )
 		string szFormattedName = pMonster.m_FormattedName;
 		if ( !szFormattedName.IsEmpty() )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "SZ Monster displayname = " + szFormattedName + "\n" );
+		
+		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B Monster Ally = " + ( pMonster.IsPlayerAlly() ? "Yes" : "No" )  + "\n" );
 	}
 	
 	CBaseToggle@ pToggle = cast<CBaseToggle@>( pEntity );
