@@ -136,6 +136,8 @@ bool IsMusic( const string &in szName )
 		return true;
 	if ( int( szName.Find( "intro", 0, String::CaseInsensitive ) ) != -1 )
 		return true;
-	
+	if ( int( szName.Find( "/mp3", 0, String::CaseInsensitive ) ) != -1 )
+		return true;
+
 	return false;
 }
