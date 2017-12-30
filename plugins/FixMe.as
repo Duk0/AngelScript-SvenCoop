@@ -211,6 +211,50 @@ void FixMe()
 		iCount = 0;
 	}
 
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "info_player_deathmatch" ) ) !is null )
+	{
+		szTargetName = pEntity.GetTargetname();
+		if ( !szTargetName.IsEmpty() )
+			continue;
+		
+		if ( !pEntity.pev.SpawnFlagBitSet( 2 ) )
+			continue;
+		
+		vecOrigin = pEntity.GetOrigin();
+		g_pEntities.insertLast( "info_player_deathmatch, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", spawnflags: " + pEntity.pev.spawnflags + ", without targetname!\n" );
+
+		iCount++;
+	}
+
+	if ( iCount > 0 )
+	{
+		g_pEntities.insertLast( "=> Found " + iCount + " issues with info_player_deathmatch!\n" );
+		g_iIssues += iCount;
+		iCount = 0;
+	}
+
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "info_player_dm2" ) ) !is null )
+	{
+		szTargetName = pEntity.GetTargetname();
+		if ( !szTargetName.IsEmpty() )
+			continue;
+		
+		if ( !pEntity.pev.SpawnFlagBitSet( 2 ) )
+			continue;
+		
+		vecOrigin = pEntity.GetOrigin();
+		g_pEntities.insertLast( "info_player_dm2, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", spawnflags: " + pEntity.pev.spawnflags + ", without targetname!\n" );
+
+		iCount++;
+	}
+
+	if ( iCount > 0 )
+	{
+		g_pEntities.insertLast( "=> Found " + iCount + " issues with info_player_dm2!\n" );
+		g_iIssues += iCount;
+		iCount = 0;
+	}
+
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
 	{		
 		iCount++;
