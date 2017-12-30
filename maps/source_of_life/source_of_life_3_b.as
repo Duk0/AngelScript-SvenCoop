@@ -5,6 +5,8 @@ const string szEntFile = "source_of_life/source_of_life.ent";
 
 void MapActivate()
 {
+	LivesActivate();
+
 	CBaseEntity@ pEntity = null;
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_auto" ) ) !is null )
 	{
