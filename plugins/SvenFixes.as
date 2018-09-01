@@ -18,7 +18,7 @@ class CameraData
 
 void MapStart()
 {
-	CBaseEntity@ pEntity = null, pEnt;
+	CBaseEntity@ pEntity = null;
 	CBaseDelay@ pDelay;
 	edict_t@ pEdict;
 	string szTargetName, szKillTarget;
@@ -63,16 +63,16 @@ void MapStart()
 	
 	for ( uint i = 0; i < pStored.length(); i++ )
 	{
-		@pEnt = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, false );
-		if ( pEnt is null )
+		@pEntity = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, false );
+		if ( pEntity is null )
 			continue;
 			
 		data = pStored[i];
 
-		pEnt.pev.targetname = data.targetname;
-		pEnt.pev.spawnflags = 1;
+		pEntity.pev.targetname = data.targetname;
+		pEntity.pev.spawnflags = 1;
 
-		@pDelay = cast<CBaseDelay@>( pEnt );
+		@pDelay = cast<CBaseDelay@>( pEntity );
 		if ( pDelay is null )
 			continue;
 		
@@ -91,6 +91,7 @@ void MapStart()
 	}
 
 	/* Fix for possibility healing monster_*_dead ents */
+	@pEntity = null;
 	string szClassname;
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_*" ) ) !is null )
 	{

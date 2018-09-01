@@ -73,7 +73,7 @@ void actionSpeechMenu( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const C
 			szCmd = szCmd.SubString( 4 );
 			if ( !szCmd.IsEmpty() )
 			{
-				NetworkMessage message( MSG_ALL, NetworkMessages::NetworkMessageType( 9 ) );
+				NetworkMessage message( MSG_ALL, NetworkMessages::SVC_STUFFTEXT );
 				message.WriteString( "speak " + szCmd );
 				message.End();
 			}
@@ -95,7 +95,7 @@ void actionSpeechMenu( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const C
 				message.End();
 			}*/
 
-			NetworkMessage message( MSG_ALL, NetworkMessages::NetworkMessageType( 9 ) );
+			NetworkMessage message( MSG_ALL, NetworkMessages::SVC_STUFFTEXT );
 			message.WriteString( szCmd );
 			message.End();
 		}

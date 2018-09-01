@@ -261,7 +261,7 @@ void VoteMapEnd( Vote@ pVote, bool bResult, int iVoters )
 	
 	g_Scheduler.SetTimeout( "delayedChange", 2.0, szMap );
 
-	NetworkMessage message( MSG_ALL, NetworkMessages::NetworkMessageType( 9 ) );
+	NetworkMessage message( MSG_ALL, NetworkMessages::SVC_STUFFTEXT );
 	message.WriteString( "spk buttons/bell1" ); // tfc/misc/endgame, ambience/warn2
 	message.End();
 }

@@ -102,7 +102,7 @@ void sayTheTime( CBasePlayer@ pPlayer )
 			
 		//client_cmd(id, "spk ^"fvox/time_is_now %s_period %s%s^"", whours, wmins, wpm) // this is better
 
-		NetworkMessage message( MSG_ONE, NetworkMessages::NetworkMessageType( 9 ), pPlayer.edict() );
+		NetworkMessage message( MSG_ONE, NetworkMessages::SVC_STUFFTEXT, pPlayer.edict() );
 		message.WriteString( "spk \"fvox/time_is_now " + whours + " _period " + wmins + " " + wpm + "\"" );
 		message.End();
 	}
@@ -120,7 +120,7 @@ void sayTimeLeft( CBasePlayer@ pPlayer )
 		
 		if ( g_pVarTimeVoice.GetBool() )
 		{
-			NetworkMessage message( MSG_ONE, NetworkMessages::NetworkMessageType( 9 ), pPlayer.edict() );
+			NetworkMessage message( MSG_ONE, NetworkMessages::SVC_STUFFTEXT, pPlayer.edict() );
 			message.WriteString( "spk \"vox/" + setTimeVoice( 0, iTimeLeft ) + "\"" );
 			message.End();
 		}
@@ -338,7 +338,7 @@ void timeRemain()
 
 			if ( ( flags & TD_USE_VOICE ) != 0 )
 			{
-				NetworkMessage message( MSG_ALL, NetworkMessages::NetworkMessageType( 9 ) );
+				NetworkMessage message( MSG_ALL, NetworkMessages::SVC_STUFFTEXT );
 				message.WriteString( "spk \"vox/(v70) " + setTimeVoice( flags, tmlf ) + "\"" );
 				message.End();
 			}

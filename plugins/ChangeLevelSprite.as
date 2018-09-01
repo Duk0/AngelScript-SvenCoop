@@ -83,7 +83,7 @@ void CreateSprite()
 			continue;
 		}
 
-		g_EngineFuncs.ServerPrint( "[ChangeLevelSprite] in not visible\n" );
+		g_EngineFuncs.ServerPrint( "[ChangeLevelSprite] is not visible\n" );
 	}
 }
 

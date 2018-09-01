@@ -496,7 +496,7 @@ void voteNextmap()
 		g_PlayerFuncs.ClientPrintAll( HUD_PRINTTALK, "It's time to choose the nextmap...\n" );
 
 	//g_SoundSystem.PlaySound( g_EntityFuncs.Instance( 0 ).edict(), CHAN_STATIC, "gman/gman_choose2.wav", VOL_NORM, ATTN_NONE );
-	NetworkMessage message( MSG_ALL, NetworkMessages::NetworkMessageType( 9 ) );
+	NetworkMessage message( MSG_ALL, NetworkMessages::SVC_STUFFTEXT );
 	message.WriteString( "spk gman/gman_choose2" );
 	message.End();
 

@@ -173,14 +173,41 @@ void FixMe()
 		szTarget = pEntity.pev.target;
 		vecOrigin = pEntity.Center();
 		szModel = pEntity.pev.model;
-		g_pEntities.insertLast( "trigger_multiple, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", model: " + szModel + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + ( szTarget.IsEmpty() ? "" : ", target: " + szTarget ) + ", flWait: " + flWait + "\n" );
+		g_pEntities.insertLast( "trigger_multiple, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", model: " + szModel + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + ( szTarget.IsEmpty() ? : "" + ", target: " + szTarget ) + ", flWait: " + flWait + "\n" );
 
 		iCount++;
-	}*/
+	}
 
 	if ( iCount > 0 )
 	{
 		g_pEntities.insertLast( "=> Found " + iCount + " issues with trigger_multiple!\n" );
+		g_iIssues += iCount;
+		iCount = 0;
+	}*/
+	
+	CBaseDelay@ pDelay;
+
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_relay" ) ) !is null )
+	{
+		szTargetName = pEntity.GetTargetname();
+		szTarget = pEntity.pev.target;
+		
+		if ( !szTarget.IsEmpty() )
+			continue;
+
+		@pDelay = cast<CBaseDelay@>( pEntity );
+		if ( pDelay is null || !string( pDelay.m_iszKillTarget ).IsEmpty() )
+			continue;
+			
+		vecOrigin = pEntity.GetOrigin();
+		g_pEntities.insertLast( "trigger_relay, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + "\n" );
+		
+		iCount++;
+	}
+
+	if ( iCount > 0 )
+	{
+		g_pEntities.insertLast( "=> Found " + iCount + " issues with trigger_relay!\n" );
 		g_iIssues += iCount;
 		iCount = 0;
 	}
