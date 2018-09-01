@@ -173,7 +173,7 @@ void FixMe()
 		szTarget = pEntity.pev.target;
 		vecOrigin = pEntity.Center();
 		szModel = pEntity.pev.model;
-		g_pEntities.insertLast( "trigger_multiple, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", model: " + szModel + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + ( szTarget.IsEmpty() ? "" : + ", target: " + szTarget ) + ", flWait: " + flWait + "\n" );
+		g_pEntities.insertLast( "trigger_multiple, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", model: " + szModel + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + ( szTarget.IsEmpty() ? "" : ", target: " + szTarget ) + ", flWait: " + flWait + "\n" );
 
 		iCount++;
 	}
