@@ -31,13 +31,13 @@ HookReturnCode PlayerPreThink( CBasePlayer@ pPlayer, uint& out uiFlags )
 	if ( !g_bIsZooming[iPlayer] )
 		return HOOK_CONTINUE;
 
-	CBaseEntity@ pActiveItem = pPlayer.m_hActiveItem.GetEntity();
-	CBasePlayerWeapon@ pWeapon = cast<CBasePlayerWeapon@>( pActiveItem );
+	//CBaseEntity@ pActiveItem = pPlayer.m_hActiveItem.GetEntity();
+	CBasePlayerWeapon@ pWeapon = cast<CBasePlayerWeapon@>( pPlayer.m_hActiveItem.GetEntity() );
 	
 	if ( pWeapon is null )
 		return HOOK_CONTINUE;
 	
-	if ( pWeapon.m_iId == WEAPON_PYTHON )
+	if ( pWeapon.m_iId == WEAPON_PYTHON && !pWeapon.m_fInReload )
 		return HOOK_CONTINUE;
 
 	g_bIsZooming[iPlayer] = false;
