@@ -24,6 +24,13 @@ void MapStart()
 	AmbientData data, dict;
 	int iVolume, iTargets;
 	dictionary dMusicData;
+	
+/*	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "ambient_music" ) ) !is null )
+	{
+		g_EngineFuncs.ServerPrint( "[AmbientMusic] targetname: " + pEntity.GetTargetname() + "\n" );
+		
+		g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "volume", "7" );
+	}*/
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "ambient_generic" ) ) !is null )
 	{
@@ -44,14 +51,15 @@ void MapStart()
 
 		// some music is too loudly
 		if ( iVolume >= 10 )
-			iVolume = 5;
+			iVolume = 6;
 		else if ( iVolume < 10 )
-			iVolume = 2;
+			iVolume = 3;
 
 		data.volume = iVolume;
 		data.spawnflags = 0;
 		iTargets = 0;
 
+		@pEnt = null;
 		// check for loop flag, would be better check audio file // todo trigger_random*
 		while ( ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "*" ) ) !is null )
 		{
@@ -101,16 +109,16 @@ void MapStart()
 	{
 		data = pStored[i];
 
-		@pEnt = g_EntityFuncs.Create( "ambient_music", g_vecZero, g_vecZero, true );
-		if ( pEnt is null )
+		@pEntity = g_EntityFuncs.Create( "ambient_music", g_vecZero, g_vecZero, true );
+		if ( pEntity is null )
 			continue;
 
-		pEnt.pev.targetname = data.targetname;
-		pEnt.pev.message = data.message;
-		pEnt.pev.spawnflags = data.spawnflags;
+		pEntity.pev.targetname = data.targetname;
+		pEntity.pev.message = data.message;
+		pEntity.pev.spawnflags = data.spawnflags;
 			
-		g_EntityFuncs.DispatchKeyValue( pEnt.edict(), "volume", data.volume );
-		g_EntityFuncs.DispatchSpawn( pEnt.edict() );
+		g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "volume", data.volume );
+		g_EntityFuncs.DispatchSpawn( pEntity.edict() );
 	}
 	
 	if ( pStored.length() > 0 )
