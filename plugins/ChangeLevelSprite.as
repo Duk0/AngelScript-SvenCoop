@@ -1,5 +1,14 @@
 
-array<string> m_pSpriteList = { "sprites/level_change.spr", "sprites/map_change.spr", "sprites/aomdc/levelchange.spr", "sprites/poke646/levelchange.spr", "sprites/vendetta/levelchange.spr" };
+array<string> m_pSpriteList = {
+"sprites/level_change.spr",
+"sprites/level_change_opfor.spr",
+"sprites/map_change.spr",
+"sprites/aomdc/levelchange.spr",
+"sprites/AoMClassic/levelchange.spr",
+"sprites/AoMDC/z_levelchange.spr",
+"sprites/poke646/levelchange.spr",
+"sprites/vendetta/levelchange.spr" };
+
 const string m_szDefaultSprite = m_pSpriteList[0];
 
 void PluginInit()
@@ -61,6 +70,7 @@ void CreateSprite()
 	}
 
 	Vector vecCenter;
+	int iResult;
 
 	for ( uint i = 0; i < pCenterPos.length(); ++i )
 	{
@@ -76,12 +86,15 @@ void CreateSprite()
 	
 		g_EngineFuncs.ServerPrint( "[ChangeLevelSprite] created sprite at: (" + vecCenter.x + " " + vecCenter.y + " " + vecCenter.z + ")\n" );
 		
-		if ( MoveSprite( pSprite, vecCenter ) == 2 )
+		if ( ( iResult = MoveSprite( pSprite, vecCenter ) ) == 2 )
 		{
 			vecCenter = pSprite.GetOrigin();
 			g_EngineFuncs.ServerPrint( "[ChangeLevelSprite] moved to visible position: (" + vecCenter.x + " " + vecCenter.y + " " + vecCenter.z + ")\n" );
 			continue;
 		}
+		
+		if ( iResult == 1 )
+			continue;
 
 		g_EngineFuncs.ServerPrint( "[ChangeLevelSprite] is not visible\n" );
 	}
