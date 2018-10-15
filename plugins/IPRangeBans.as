@@ -152,14 +152,20 @@ void AddIPRange( const CCommand@ args )
 	const string szIP = args.Arg( 1 );
 
 	if ( szIP.IsEmpty() )
+	{
+		PrintToConsole( pPlayer, "Usage: " + ( pPlayer is null ? "as_command " + addiprange.GetFullyQualifiedName() : addiprange_cl.GetFullyQualifiedName() ) + " <ip or ip/mask>\n" );
 		return;
+	}
 
 	array<string>@ pSubnet = szIP.Split( '/' );
 
 	uint ip_bits = IPToUInt( pSubnet[0] );
 	
 	if ( ip_bits == 4294967295 )
+	{
+		PrintToConsole( pPlayer, "Bad format IP: " + szIP + "\n" );
 		return;
+	}
 	
 	uint mask_bits = 32;
 
@@ -168,6 +174,13 @@ void AddIPRange( const CCommand@ args )
 
 	if ( mask_bits > 32 )
 		mask_bits = 32;
+
+	// bit-length of the prefix less than 8 is too large subnet, change if needed
+	if ( mask_bits < 8 )
+	{
+		mask_bits = 8;
+		PrintToConsole( pPlayer, "Mask bits less than 8 not allowed. Forced to 8 bits.\n" );
+	}
 
 	SubnetBits data;
 
