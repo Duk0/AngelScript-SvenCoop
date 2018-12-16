@@ -3,7 +3,7 @@ const string szLivesFile = "scripts/maps/store/source_of_life/lives.ini";
 void LivesActivate()
 {
 	int iLives = 1000;
-	if ( string( g_Engine.mapname ).ICompare( "source_of_life" ) != 0 )
+	if ( string( g_Engine.mapname ).ICompare( "source_of_life_v22" ) != 0 )
 		iLives = LoadLives();
 	if ( iLives <= 0 )
 		iLives = 100;
