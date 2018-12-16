@@ -1,6 +1,6 @@
 dictionary g_dAuthIDs = {
-{'STEAM_0:1:23909265', true},
-{'STEAM_0:0:26180203', true}
+//{'STEAM_0:1:23909265', true},
+//{'STEAM_0:0:26180203', true}
 };
 
 array<string> g_pAllowedIP = {
@@ -9,7 +9,7 @@ array<string> g_pAllowedIP = {
 "127.0.0.0/8", // Host (for Bots)
 //"0.0.0.0/8", // Software
 //"0.0.0.0/0", // Whole Internet
-"x.x.x.x/18", "x.x.x.x" }; // Internet
+//"x.x.x.x/18", "x.x.x.x" }; // Internet
 
 array<SubnetBits> g_pSubnet;
 
