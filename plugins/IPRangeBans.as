@@ -2,6 +2,10 @@ const string g_szIPBansFile = "scripts/plugins/store/iprangebans.dat";
 
 array<SubnetBits> g_pSubnet;
 
+bool g_bAddIPBan = true; // Block all server communication from 24/16/8 subnet
+// note: remove writeip from server.cfg
+
+
 class SubnetBits
 {
 	uint ip;
@@ -19,6 +23,8 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Player::ClientConnected, @ClientConnected );
 
 	LoadBans();
+	
+//	g_EngineFuncs.ServerPrint( UIntToIP( 4294967295 & ~0xFFFFFF ) + "\n" );
 }
 
 void LoadBans()
@@ -101,6 +107,25 @@ HookReturnCode ClientConnected( edict_t@ pEdict, const string& in szPlayerName, 
 
 			bDisallowJoin = false;
 			szRejectReason = "You have been banned from this server.";
+
+			if ( g_bAddIPBan )
+			{
+				string szIP; 
+
+				if ( data.mask > 16 ) 
+					szIP = UIntToIP( ip_bits & ~0xFF );
+				else if ( data.mask > 8 )
+					szIP = UIntToIP( ip_bits & ~0xFFFF );
+				else if ( data.mask > 0 )
+					szIP = UIntToIP( ip_bits & ~0xFFFFFF );
+
+				if ( !szIP.IsEmpty() )
+				{
+					g_EngineFuncs.ServerCommand( "addip " + szIP + "\n" );
+					g_EngineFuncs.ServerExecute();
+				}
+			}
+
 			return HOOK_HANDLED;
 		}
 	}

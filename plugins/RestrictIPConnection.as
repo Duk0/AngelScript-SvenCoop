@@ -1,12 +1,12 @@
 dictionary g_dAuthIDs = {
-//{'STEAM_0:1:23909265', true},
-//{'STEAM_0:0:26180203', true}
+{'STEAM_0:1:23909265', true},
+{'STEAM_0:0:26180203', true}
 };
 
 array<string> g_pAllowedIP = {
 "192.168.0.0/16", "172.16.0.0/12", "10.0.0.0/8", // Private network
 //"100.64.0.0/10", // Private network
-//"127.0.0.0/8", // Host
+"127.0.0.0/8", // Host (for Bots)
 //"0.0.0.0/8", // Software
 //"0.0.0.0/0", // Whole Internet
 "x.x.x.x/18", "x.x.x.x" }; // Internet
@@ -29,6 +29,7 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Player::ClientConnected, @ClientConnected );
 
 	SubnetBits data;
+
 	for ( uint uiIndex = 0; uiIndex < g_pAllowedIP.length(); uiIndex++ )
 	{
 		array<string>@ subnet = g_pAllowedIP[uiIndex].Split( '/' );
@@ -49,8 +50,8 @@ void PluginInit()
 			data.mask = 32;
 		
 		// bit-length of the prefix less than 8 is too large subnet, change if needed
-/*		if ( data.mask < 8 )
-			data.mask = 8;*/
+		if ( data.mask < 8 )
+			data.mask = 8;
 	
 		g_pSubnet.insertLast( data );
 		
@@ -88,6 +89,7 @@ HookReturnCode ClientConnected( edict_t@ pEdict, const string& in szPlayerName, 
 	uint ip_bits = IPToUInt( ip[0] );
 	
 	SubnetBits data;
+
 	for ( uint uiIndex = 0; uiIndex < g_pSubnet.length(); uiIndex++ )
 	{
 		data = g_pSubnet[uiIndex];
@@ -102,18 +104,13 @@ HookReturnCode ClientConnected( edict_t@ pEdict, const string& in szPlayerName, 
 	g_szLastIP = szIPAddress;
 
 	bDisallowJoin = false;
-	szRejectReason = "Only allowed IP can connect.";
+	szRejectReason = "Only allowed IP address can join.";
 	return HOOK_HANDLED;
 }
 
 bool IsIPInRange( const uint& in ip_bits, const uint& in net_bits, const uint& in mask_len = 32 )
 {
-	//uint netmask = net_bits & ( ( 1 << mask_len ) - 1 );
-	//uint netmask = net_bits & ( -1 << ( 32 - mask_len ) );
 	uint netmask = mask_len != 0 ? 0XFFFFFFFF ^ ( ( 1 << 32 - mask_len ) - 1 ) : 0;
-	
-//	g_EngineFuncs.ServerPrint( "ip_bits: " + ip_bits + ", netmask: " + netmask + ", net_bits: " + net_bits + "\n" );	
-//	g_EngineFuncs.ServerPrint( "ip_bits & netmask: " + ( ip_bits & netmask ) + ", net_bits & netmask: " + ( net_bits & netmask ) + "\n" );
 
 	return ( ( ip_bits & netmask ) == ( net_bits & netmask ) );
 }
