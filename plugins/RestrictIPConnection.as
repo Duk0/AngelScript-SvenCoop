@@ -9,7 +9,7 @@ array<string> g_pAllowedIP = {
 "127.0.0.0/8", // Host (for Bots)
 //"0.0.0.0/8", // Software
 //"0.0.0.0/0", // Whole Internet
-//"x.x.x.x/18", "x.x.x.x" }; // Internet
+"x.x.x.x/18", "x.x.x.x" }; // Internet
 
 array<SubnetBits> g_pSubnet;
 
