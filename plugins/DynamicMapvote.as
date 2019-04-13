@@ -1,7 +1,7 @@
 
 // WARNING:  More than 150 maps in vote list may render your server un-joinable for the reliable channel overflowing (yours has >150).
 
-const int MAPSLIST_MAX = 300;
+const int MAPSLIST_MAX = 150;
 
 string g_szMapVotecfgFile = "scripts/plugins/symlinks/mapvote.cfg";
 
@@ -23,14 +23,11 @@ void LoadMaps()
 	if ( pFile !is null && pFile.IsOpen() )
 	{
 		string szLine, szBuff;
+		int iFound;
 		while ( !pFile.EOFReached() )
 		{
 			pFile.ReadLine( szLine );
 			szLine.Trim();
-
-/*			szLine.Trim( '\r' );
-			if ( szLine == '\r' )
-				continue;*/
 			
 			if ( szLine.IsEmpty() )
 				continue;
@@ -51,8 +48,7 @@ void LoadMaps()
 			if ( !g_EngineFuncs.IsMapValid( szBuff ) )
 				continue;
 			
-			int iFound = pMapList.find( szBuff );
-			if ( iFound >= 0 )
+			if ( ( iFound = pMapList.find( szBuff ) ) >= 0 )
 				pMapList.removeAt( iFound );
 				
 			g_iTotal++;
