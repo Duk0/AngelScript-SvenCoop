@@ -88,6 +88,8 @@ void FixMe()
 {
 	CBaseEntity@ pEntity = null;
 	CBaseEntity@ pEnt = null;
+	CBaseToggle@ pToggle;
+	CBaseDelay@ pDelay;
 	Vector vecOrigin;
 	string szTargetName, szTarget, szMaster, szModel;
 	int iCount = 0;
@@ -103,7 +105,7 @@ void FixMe()
 		if ( pEntity.pev.SpawnFlagBitSet( 4096 ) )
 			continue;
 		
-		CBaseToggle@ pToggle = cast<CBaseToggle@>( pEntity );
+		@pToggle = cast<CBaseToggle@>( pEntity );
 		if ( pToggle is null )
 			continue;
 		
@@ -117,7 +119,7 @@ void FixMe()
 			if ( pEnt is pEntity )
 				continue;
 
-			CBaseDelay@ pDelay = cast<CBaseDelay@>( pEnt );
+			@pDelay = cast<CBaseDelay@>( pEnt );
 
 			if ( pDelay !is null && pDelay.m_iszKillTarget == szTargetName )
 				bFound = true;
@@ -161,7 +163,7 @@ void FixMe()
 		
 /*	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_multiple" ) ) !is null )
 	{
-		CBaseToggle@ pToggle = cast<CBaseToggle@>( pEntity );
+		@pToggle = cast<CBaseToggle@>( pEntity );
 		if ( pToggle is null )
 			continue;
 
@@ -184,8 +186,6 @@ void FixMe()
 		g_iIssues += iCount;
 		iCount = 0;
 	}*/
-	
-	CBaseDelay@ pDelay;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_relay" ) ) !is null )
 	{
@@ -200,7 +200,7 @@ void FixMe()
 			continue;
 			
 		vecOrigin = pEntity.GetOrigin();
-		g_pEntities.insertLast( "trigger_relay, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + "\n" );
+		g_pEntities.insertLast( "trigger_relay, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + " without target.\n" );
 		
 		iCount++;
 	}
