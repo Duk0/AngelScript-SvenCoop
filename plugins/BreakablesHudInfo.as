@@ -99,7 +99,7 @@ void FindBreakables()
 	CBaseEntity@ pEntity = null;
 	int iSpawnFlags = 0;
 
-	while( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_breakable" ) ) !is null )
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_breakable" ) ) !is null )
 	{
 		if ( pEntity.pev.health <= 1 )
 			continue;
@@ -122,7 +122,7 @@ void FindBreakables()
 			pEntity.pev.spawnflags |= SF_BREAKABLE_SHOWHUDINFO;
 	}
 
-	while( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_pushable" ) ) !is null )
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_pushable" ) ) !is null )
 	{
 		if ( pEntity.pev.health <= 1 )
 			continue;
@@ -148,9 +148,17 @@ void MapStart()
 
 void HUDInfoThink()
 {
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	CBasePlayer@ pPlayer;
+	CBaseEntity@ pEnt;
+/*	CBaseEntity@ pEntity = null;
+
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "player" ) ) !is null )
 	{
-		CBasePlayer@ pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
+		@pPlayer = cast<CBasePlayer@>( pEntity );*/
+
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
+	{
+		@pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
 
 		if ( pPlayer is null || !pPlayer.IsConnected() || !pPlayer.IsAlive() )
 			continue;
@@ -158,11 +166,14 @@ void HUDInfoThink()
 		if ( !IsPlayerAdmin( pPlayer ) )
 			continue;
 
-		CBaseEntity@ pEntity = g_Utility.FindEntityForward( pPlayer, 4096 );
-		if ( pEntity is null )
+		if ( pPlayer.m_afPhysicsFlags & PFLAG_CAMERA != 0 )
 			continue;
 
-		DisplayHUDInfo( pPlayer, pEntity );
+		@pEnt = g_Utility.FindEntityForward( pPlayer, 4096 );
+		if ( pEnt is null )
+			continue;
+
+		DisplayHUDInfo( pPlayer, pEnt );
 	}
 }
 
