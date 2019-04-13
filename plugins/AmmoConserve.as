@@ -63,7 +63,7 @@ void PluginInit()
 	
 	g_Hooks.RegisterHook( Hooks::PickupObject::CanCollect, @CanCollect );
 
-	@g_pCvarAmmo = CCVar( "limit_ammo", 100 );
+	@g_pCvarAmmo = CCVar( "limit_ammo", 90 );
 	@g_pCvar556 = CCVar( "limit_556", 90 );
 	@g_pCvarExpendables = CCVar( "limit_expendables", 89 );
 	@g_pCvarHealth = CCVar( "limit_health", 98 );
@@ -137,7 +137,8 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 				flAmmoLimit = g_pCvar556.GetFloat();
 				if ( flAmmoLimit <= 0.0 ) return HOOK_CONTINUE;
 
-				iAmmoId = g_iAmmo556; iAmmoGive = AMMO_556BOX_GIVE; break; // ammo_556
+			//	iAmmoId = g_iAmmo556; iAmmoGive = AMMO_556BOX_GIVE; break; // ammo_556
+				iAmmoId = g_iAmmo556; break;
 			}
 			case 55: iAmmoId = g_iAmmoSniperrifle; iAmmoGive = AMMO_M40A1CLIP_GIVE; break; // ammo_762
 			case 57:
@@ -147,7 +148,7 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 				switch ( szClassname[8].opImplConv() )
 				{
 					case 65: iAmmoGive = AMMO_MP5CLIP_GIVE; break; // ammo_9mmAR
-					case 98: iAmmoGive = AMMO_CHAINBOX_GIVE; break; // ammo_9mmbox
+				//	case 98: iAmmoGive = AMMO_CHAINBOX_GIVE; break; // ammo_9mmbox
 					case 99: iAmmoGive = AMMO_GLOCKCLIP_GIVE; break; // ammo_9mmclip
 				}
 
@@ -221,7 +222,8 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 				switch ( szClassname[9].opImplConv() )
 				{
 					case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_NAIL_GIVE; break; // ammo_nailclip
-					case 114: iAmmoId = g_iAmmoARGrenade; iAmmoGive = AMMO_NAILR_GIVE; break; // ammo_nailround
+				//	case 114: iAmmoId = g_iAmmoARGrenade; iAmmoGive = AMMO_NAILR_GIVE; break; // ammo_nailround
+					case 114: iAmmoId = g_iAmmoARGrenade; break; // ammo_nailround
 				}
 
 				break;
@@ -241,7 +243,8 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 				switch ( szClassname[6].opImplConv() )
 				{
 					case 101: iAmmoId = g_iAmmoUranium; iAmmoGive = Q1_AMMO_ENERGY_GIVE; break; // ammo_qenergy
-					case 110: iAmmoId = g_iAmmoCrossbow; iAmmoGive = Q1_AMMO_NAILS_GIVE; break; // ammo_qnails
+				//	case 110: iAmmoId = g_iAmmoCrossbow; iAmmoGive = Q1_AMMO_NAILS_GIVE; break; // ammo_qnails
+					case 110: iAmmoId = g_iAmmoCrossbow; break; // ammo_qnails
 					case 114: iAmmoId = g_iAmmoRPG; iAmmoGive = Q1_AMMO_ROCKETS_GIVE; break; // ammo_qrockets
 					case 115: iAmmoId = g_iAmmoShotgun; iAmmoGive = Q1_AMMO_SHELLS_GIVE; break; // ammo_qshells
 				}
@@ -256,7 +259,7 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 		if ( iAmmoId == -1 ) return HOOK_CONTINUE;
 
 	//	if ( float( pPlayer.AmmoInventory( iAmmoId ) ) > ( flAmmoLimit / 100 ) * float( pPlayer.GetMaxAmmo( iAmmoId ) ) )
-		if ( flAmmoLimit > 99 ? pPlayer.AmmoInventory( iAmmoId ) + iAmmoGive > pPlayer.GetMaxAmmo( iAmmoId ) : float( pPlayer.AmmoInventory( iAmmoId ) ) > ( flAmmoLimit / 100 ) * float( pPlayer.GetMaxAmmo( iAmmoId ) ) )
+		if ( iAmmoGive > 0 ? pPlayer.AmmoInventory( iAmmoId ) + iAmmoGive > pPlayer.GetMaxAmmo( iAmmoId ) : float( pPlayer.AmmoInventory( iAmmoId ) ) > ( flAmmoLimit / 100 ) * float( pPlayer.GetMaxAmmo( iAmmoId ) ) )
 		{
 			bResult = false;
 			return HOOK_HANDLED;
