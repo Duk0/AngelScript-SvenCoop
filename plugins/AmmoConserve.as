@@ -2,36 +2,36 @@
 // The amount of ammo given to a player by an ammo item.
 const int AMMO_GLOCKCLIP_GIVE		= 17;
 const int AMMO_357BOX_GIVE			= 6;
-const int AMMO_MP5CLIP_GIVE		= 30;
-const int AMMO_CHAINBOX_GIVE		= 200;
+//const int AMMO_MP5CLIP_GIVE		= 30;
+//const int AMMO_CHAINBOX_GIVE		= 200;
 const int AMMO_M203BOX_GIVE		= 2;
 const int AMMO_BUCKSHOTBOX_GIVE	= 12;
 const int AMMO_CROSSBOWCLIP_GIVE	= 5;
 const int AMMO_RPGCLIP_GIVE		= 2;
-const int AMMO_URANIUMBOX_GIVE		= 20;
+//const int AMMO_URANIUMBOX_GIVE		= 20;
 //const int AMMO_SNARKBOX_GIVE		= 5;
-const int AMMO_556BOX_GIVE			= 100;
-const int AMMO_M40A1CLIP_GIVE		= 5;
-const int AMMO_UZICLIP_GIVE		= 32;
+//const int AMMO_556BOX_GIVE			= 100;
+//const int AMMO_M40A1CLIP_GIVE		= 5;
+//const int AMMO_UZICLIP_GIVE		= 32;
 
 // AoM
 const int AMMO_DEAGLE_GIVE			= 7;
 const int AMMO_GLOCK_GIVE			= 20;
-const int AMMO_MP5K_GIVE			= 30;
+//const int AMMO_MP5K_GIVE			= 30;
 const int AMMO_REVOLVER_GIVE		= 6;
 const int AMMO_SHOTGUN_GIVE		= 8;
 
 // poke646
-const int AMMO_NAIL_GIVE			= 25;
-const int AMMO_NAILR_GIVE			= 50;
-const int AMMO_PAR21_GIVE			= 30;
+//const int AMMO_NAIL_GIVE			= 25;
+//const int AMMO_NAILR_GIVE			= 50;
+//const int AMMO_PAR21_GIVE			= 30;
 const int AMMO_PAR21GL_GIVE		= 2;
 
 // quake1
 const int Q1_AMMO_ENERGY_GIVE		= 10;
-const int Q1_AMMO_NAILS_GIVE		= 50;
+//const int Q1_AMMO_NAILS_GIVE		= 50;
 const int Q1_AMMO_ROCKETS_GIVE		= 10;
-const int Q1_AMMO_SHELLS_GIVE		= 25;
+//const int Q1_AMMO_SHELLS_GIVE		= 25;
 
 
 
@@ -140,14 +140,15 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 			//	iAmmoId = g_iAmmo556; iAmmoGive = AMMO_556BOX_GIVE; break; // ammo_556
 				iAmmoId = g_iAmmo556; break;
 			}
-			case 55: iAmmoId = g_iAmmoSniperrifle; iAmmoGive = AMMO_M40A1CLIP_GIVE; break; // ammo_762
+		//	case 55: iAmmoId = g_iAmmoSniperrifle; iAmmoGive = AMMO_M40A1CLIP_GIVE; break; // ammo_762
+			case 55: iAmmoId = g_iAmmoSniperrifle; break; // ammo_762
 			case 57:
 			{
 				iAmmoId = g_iAmmo9mm; 
 
 				switch ( szClassname[8].opImplConv() )
 				{
-					case 65: iAmmoGive = AMMO_MP5CLIP_GIVE; break; // ammo_9mmAR
+				//	case 65: iAmmoGive = AMMO_MP5CLIP_GIVE; break; // ammo_9mmAR
 				//	case 98: iAmmoGive = AMMO_CHAINBOX_GIVE; break; // ammo_9mmbox
 					case 99: iAmmoGive = AMMO_GLOCKCLIP_GIVE; break; // ammo_9mmclip
 				}
@@ -184,19 +185,22 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 				{
 					case 100: iAmmoId = g_iAmmo357; iAmmoGive = AMMO_DEAGLE_GIVE; break; // ammo_dcdeagle
 					case 103: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_GLOCK_GIVE; break; // ammo_dcglock
-					case 109: iAmmoId = g_iAmmo556; iAmmoGive = AMMO_MP5K_GIVE; break; // ammo_dcmp5k
+				//	case 109: iAmmoId = g_iAmmo556; iAmmoGive = AMMO_MP5K_GIVE; break; // ammo_dcmp5k
+					case 109: iAmmoId = g_iAmmo556; break; // ammo_dcmp5k
 					case 114: iAmmoId = g_iAmmoSniperrifle; iAmmoGive = AMMO_REVOLVER_GIVE; break; // ammo_dcrevolver
 					case 115: iAmmoId = g_iAmmoShotgun; iAmmoGive = AMMO_SHOTGUN_GIVE; break; // ammo_dcshotgun
 				}
 				
 				break;
 			}
-			case 101: iAmmoId = g_iAmmoUranium; iAmmoGive = AMMO_URANIUMBOX_GIVE; break; // ammo_egonclip
+		//	case 101: iAmmoId = g_iAmmoUranium; iAmmoGive = AMMO_URANIUMBOX_GIVE; break; // ammo_egonclip
+			case 101: iAmmoId = g_iAmmoUranium; break; // ammo_egonclip
 			case 103:
 			{
 				switch ( szClassname[6].opImplConv() )
 				{
-					case 97: iAmmoId = g_iAmmoUranium; iAmmoGive = AMMO_URANIUMBOX_GIVE; break; // ammo_gaussclip
+				//	case 97: iAmmoId = g_iAmmoUranium; iAmmoGive = AMMO_URANIUMBOX_GIVE; break; // ammo_gaussclip
+					case 97: iAmmoId = g_iAmmoUranium; break; // ammo_gaussclip
 					case 108:
 					{
 						if ( szClassname[7] != 'o' ) return HOOK_CONTINUE;
@@ -211,7 +215,8 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 			{
 				switch ( szClassname[8].opImplConv() )
 				{
-					case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_MP5CLIP_GIVE; break; // ammo_mp5clip
+				//	case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_MP5CLIP_GIVE; break; // ammo_mp5clip
+					case 99: iAmmoId = g_iAmmo9mm; break; // ammo_mp5clip
 					case 103: iAmmoId = g_iAmmoARGrenade; iAmmoGive = AMMO_M203BOX_GIVE; break; // ammo_mp5grenades
 				}
 
@@ -221,7 +226,8 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 			{
 				switch ( szClassname[9].opImplConv() )
 				{
-					case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_NAIL_GIVE; break; // ammo_nailclip
+				//	case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_NAIL_GIVE; break; // ammo_nailclip
+					case 99: iAmmoId = g_iAmmo9mm; break; // ammo_nailclip
 				//	case 114: iAmmoId = g_iAmmoARGrenade; iAmmoGive = AMMO_NAILR_GIVE; break; // ammo_nailround
 					case 114: iAmmoId = g_iAmmoARGrenade; break; // ammo_nailround
 				}
@@ -232,7 +238,8 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 			{
 				switch ( szClassname[11].opImplConv() )
 				{
-					case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_PAR21_GIVE; break; // ammo_par21_clip
+				//	case 99: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_PAR21_GIVE; break; // ammo_par21_clip
+					case 99: iAmmoId = g_iAmmo9mm; break; // ammo_par21_clip
 					case 114: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_PAR21GL_GIVE; break; // ammo_par21_grenades
 				}
 
@@ -246,13 +253,15 @@ HookReturnCode CanCollect( CBaseEntity@ pPickup, CBaseEntity@ pOther, bool& out 
 				//	case 110: iAmmoId = g_iAmmoCrossbow; iAmmoGive = Q1_AMMO_NAILS_GIVE; break; // ammo_qnails
 					case 110: iAmmoId = g_iAmmoCrossbow; break; // ammo_qnails
 					case 114: iAmmoId = g_iAmmoRPG; iAmmoGive = Q1_AMMO_ROCKETS_GIVE; break; // ammo_qrockets
-					case 115: iAmmoId = g_iAmmoShotgun; iAmmoGive = Q1_AMMO_SHELLS_GIVE; break; // ammo_qshells
+				//	case 115: iAmmoId = g_iAmmoShotgun; iAmmoGive = Q1_AMMO_SHELLS_GIVE; break; // ammo_qshells
+					case 115: iAmmoId = g_iAmmoShotgun; break; // ammo_qshells
 				}
 				
 				break;
 			}
 			case 114: iAmmoId = g_iAmmoRPG; iAmmoGive = AMMO_RPGCLIP_GIVE; break; // ammo_rpgclip
-			case 117: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_UZICLIP_GIVE; break; // ammo_uziclip
+		//	case 117: iAmmoId = g_iAmmo9mm; iAmmoGive = AMMO_UZICLIP_GIVE; break; // ammo_uziclip
+			case 117: iAmmoId = g_iAmmo9mm; break; // ammo_uziclip
 			default: return HOOK_CONTINUE;
 		}
 
