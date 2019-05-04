@@ -101,7 +101,8 @@ void FindBreakables()
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_breakable" ) ) !is null )
 	{
-		if ( pEntity.pev.health <= 1 )
+	//	if ( pEntity.pev.health <= 0 || pEntity.pev.netname != "Breakable" )
+		if ( pEntity.pev.health <= 0 || !pEntity.IsBreakable() )
 			continue;
 
 		iSpawnFlags = pEntity.pev.spawnflags;
@@ -124,7 +125,8 @@ void FindBreakables()
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_pushable" ) ) !is null )
 	{
-		if ( pEntity.pev.health <= 1 )
+	//	if ( pEntity.pev.health <= 0 && pEntity.pev.netname != "Breakable" )
+		if ( pEntity.pev.health <= 0 || !pEntity.IsBreakable() )
 			continue;
 
 		iSpawnFlags = pEntity.pev.spawnflags;
@@ -133,7 +135,7 @@ void FindBreakables()
 		if ( ( iSpawnFlags & SF_PUSHABLE_1HITBREAK ) != 0 )
 			continue;
 		if ( ( iSpawnFlags & SF_PUSHABLE_EXPLOSIVESONLY ) != 0 )
-		continue;
+			continue;
 
 		if ( ( iSpawnFlags & SF_PUSHABLE_SHOWHUDINFO ) == 0 )
 			pEntity.pev.spawnflags |= SF_PUSHABLE_SHOWHUDINFO;
@@ -179,6 +181,9 @@ void HUDInfoThink()
 
 void DisplayHUDInfo( CBasePlayer@ pPlayer, CBaseEntity@ pEntity )
 {
+	if ( !pEntity.IsBreakable() )
+		return;
+
 	string szClassname = pEntity.GetClassname();
 	if ( szClassname == "func_breakable" )
 	{
@@ -214,7 +219,7 @@ void DisplayHUDInfo( CBasePlayer@ pPlayer, CBaseEntity@ pEntity )
 		return;
 
 	int iStrength = int( pEntity.pev.health );
-	if ( iStrength <= 1 )
+	if ( iStrength <= 0 )
 		return;
 	
 	g_PlayerFuncs.HudMessage( pPlayer, m_hudTxtParam, "Breakable\nStrength:  " + iStrength );
