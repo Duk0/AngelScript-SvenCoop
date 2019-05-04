@@ -26,7 +26,7 @@ void MapInit()
 
 void MapStart()
 {
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 		g_bPlayerNV[iPlayer] = false;
 
 	g_Scheduler.SetInterval( "nvThink", 0.02f );
@@ -141,9 +141,11 @@ HookReturnCode MapChange()
 
 void nvThink()
 {
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	CBasePlayer@ pPlayer;
+
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 	{
-		CBasePlayer@ pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
+		@pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
 
 		if ( pPlayer is null || !pPlayer.IsConnected() || !pPlayer.IsAlive() )
 			continue;
@@ -151,7 +153,7 @@ void nvThink()
 		if ( !g_bPlayerNV[iPlayer] )
 			continue;
 			
-		if ( pPlayer.m_afPhysicsFlags & PFLAG_CAMERA != 0 )
+		if ( pPlayer.m_afPhysicsFlags & PFLAG_CAMERA != 0 || pPlayer.FlashlightIsOn() )
 		{
 			removeNV( pPlayer );
 			g_bPlayerNV[iPlayer] = false;
