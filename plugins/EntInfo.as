@@ -17,6 +17,8 @@ void InfoEntity( const CCommand@ args )
 
 	CBaseEntity@ pEntity = null;
 	
+	string szSearchMethod;
+	
 	if ( szArg == "@me" )
 		@pEntity = pPlayer;
 	else if ( szArg.IsEmpty() )
@@ -24,12 +26,36 @@ void InfoEntity( const CCommand@ args )
 	else
 	{
 		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, szArg ) ) !is null )
+		{
+			szSearchMethod = "Classname";
 			break;
+		}
+
+		if ( pEntity is null )
+		{	
+			while ( ( @pEntity = g_EntityFuncs.FindEntityByTargetname( pEntity, szArg ) ) !is null )
+			{
+				szSearchMethod = "Targetname";
+				break;
+			}
+		}
 
 		if ( pEntity is null )
 		{
-			while ( ( @pEntity = g_EntityFuncs.FindEntityByTargetname( pEntity, szArg ) ) !is null )
+			while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", szArg ) ) !is null )
+			{
+				szSearchMethod = "Target";
 				break;
+			}
+		}
+
+		if ( pEntity is null )
+		{
+			while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "model", szArg ) ) !is null )
+			{
+				szSearchMethod = "Model";
+				break;
+			}
 		}
 	}
 
@@ -75,7 +101,7 @@ void InfoEntity( const CCommand@ args )
 				
 	g_PlayerFuncs.HudMessage( pPlayer, hudPrms, "Entity " + pEntity.entindex() + " " + pEntity.GetClassname() + "\nSee console for more info." );
 	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "--------------------------\n" );
-	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "Entity " + pEntity.entindex() + "\n" );
+	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "Entity " + pEntity.entindex() + ( szSearchMethod.IsEmpty() ? "" : ", Found by " + szSearchMethod ) + "\n" );
 
 	entvars_t@ pVars = pEntity.pev;
 	
@@ -130,7 +156,7 @@ void InfoEntity( const CCommand@ args )
 	uint uiCount = keys.length();
 
 	int iValue;
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictINT.get( keys[ uiIndex ], iValue ) && iValue != 0 )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT " + keys[ uiIndex ] + " = " + iValue + "\n" );
@@ -183,7 +209,7 @@ void InfoEntity( const CCommand@ args )
 	uiCount = keys.length();
 
 	float flValue;
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictFL.get( keys[ uiIndex ], flValue ) && flValue != 0.0 )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "FL " + keys[ uiIndex ] + " = " + flValue + "\n" );
@@ -222,7 +248,7 @@ void InfoEntity( const CCommand@ args )
 	uiCount = keys.length();
 
 	Vector vecValue;
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictVEC.get( keys[ uiIndex ], vecValue ) && vecValue != g_vecZero )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "VEC " + keys[ uiIndex ] + " = (" + vecValue.x + ", " + vecValue.y + ", " + vecValue.z + ")\n" );
@@ -250,7 +276,7 @@ void InfoEntity( const CCommand@ args )
 
 	edict_t@ pEdict;
 	int entValue;
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( !dictENT.get( keys[ uiIndex ], @pEdict ) )
 			continue;
@@ -284,7 +310,7 @@ void InfoEntity( const CCommand@ args )
 	uiCount = keys.length();
 
 	string szValue;
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictSZ.get( keys[ uiIndex ], szValue ) && !szValue.IsEmpty() )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "SZ " + keys[ uiIndex ] + " = " + szValue + "\n" );
@@ -305,7 +331,7 @@ void InfoEntity( const CCommand@ args )
 	@keys = dictBYTE.getKeys();
 	uiCount = keys.length();
 
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictBYTE.get( keys[ uiIndex ], iValue ) && iValue != 0 )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "BYTE " + keys[ uiIndex ] + " = " + iValue + "\n" );
@@ -318,7 +344,9 @@ void InfoEntity( const CCommand@ args )
 	if ( iClassification != 0 )
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT Classification = " + iClassification + "\n" );
 	
-	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B Entity is moving = " + ( pEntity.IsMoving() ? "Yes" : "No" ) + "\n" );
+	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B is moving = " + ( pEntity.IsMoving() ? "Yes" : "No" ) + "\n" );
+	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B is machine = " + ( pEntity.IsMachine() ? "Yes" : "No" ) + "\n" );
+	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B is monster = " + ( pEntity.IsMonster() ? "Yes" : "No" ) + "\n" );
 
 	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
 	if ( pMonster !is null )
@@ -375,6 +403,8 @@ void InfoEntity( const CCommand@ args )
 				g_EngineFuncs.ClientPrintf( pPlayer, print_console, "SZ KillTarget = " + szKillTarget + "\n" );
 		}
 	}
+	
+	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "--------------------------\n\n" );
 }
 
 CClientCommand ent_info( "ent_info", "Entity Info", @InfoEntity ); //.ent_info
@@ -382,7 +412,7 @@ CClientCommand ent_info( "ent_info", "Entity Info", @InfoEntity ); //.ent_info
 /*
 string VecTOString( Vector vec )
 {
-	if( vec.x != 0.0 || vec.y != 0.0 || vec.z != 0.0 )
+	if ( vec.x != 0.0 || vec.y != 0.0 || vec.z != 0.0 )
 		return "(" + vec.x + ", " + vec.y + ", " + vec.z + ")";
 
 	return "";
