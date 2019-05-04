@@ -90,9 +90,11 @@ void MapStart()
 		iCount = 0;
 	}
 
-	/* Fix for possibility healing monster_*_dead ents */
+	/* Fix for possibility healing monster_*_dead npcs */
 	@pEntity = null;
 	string szClassname;
+	float flMaxHealth;
+	
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_*" ) ) !is null )
 	{
 		if ( pEntity.IsRevivable() || pEntity.IsAlive() )
@@ -105,12 +107,20 @@ void MapStart()
 		/*if ( pEntity.pev.health == pEntity.pev.max_health )
 			continue;*/
 			
-		pEntity.pev.health = pEntity.pev.max_health;
+		flMaxHealth = pEntity.pev.max_health;
+		
+		if ( flMaxHealth > 100 )
+			pEntity.pev.health = flMaxHealth;
+		else if ( flMaxHealth > 10 )
+			pEntity.pev.health = 10;
+		else
+			pEntity.pev.health = flMaxHealth;
+
 		pEntity.pev.max_health = 1;
 		
 		iCount++;
 	}
 
 	if ( iCount > 0 )
-		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " monster_*_dead entities.\n" );
+		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " monster_*_dead npcs.\n" );
 }
