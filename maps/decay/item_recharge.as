@@ -1,3 +1,5 @@
+// PS2HL Suit Charger Station
+// Based on from https://github.com/supadupaplex/ya-ps2hl-dll
 
 namespace PS2RECHARGE
 {
