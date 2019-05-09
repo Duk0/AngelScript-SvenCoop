@@ -465,7 +465,7 @@ class CItemRecharge : ScriptBaseAnimating
 		if ( CoilsAngle > RCHG_CTRL_COILS_MAX )
 			CoilsAngle -= 360.0f;
 		else if ( CoilsAngle < RCHG_CTRL_COILS_MIN )
-			CoilsAngle += 360.0f;//float CoilPos = (float)m_iJuice / int( g_flSuitchargerCapacity ) * RCHG_COIL_SPEED;
+			CoilsAngle += 360.0f;//float CoilPos = float( m_iJuice ) / int( g_flSuitchargerCapacity ) * RCHG_COIL_SPEED;
 		
 		self.SetBoneController( RCHG_CTRL_LCOIL, CoilsAngle );
 		self.SetBoneController( RCHG_CTRL_RCOIL, RCHG_CTRL_COILS_MAX - CoilsAngle );
@@ -494,11 +494,12 @@ class CItemRecharge : ScriptBaseAnimating
 		pBeam.SetWidth( 3 );
 		pBeam.SetNoise( 5 );
 		pBeam.SetScrollRate( 30 );
-	//	pBeam.SetThink( ThinkFunction( pBeam.SUB_Remove ) );
-		pBeam.LiveForTime( RCHG_DELAY_THINK );
+	//	pBeam.SetThink( ThinkFunction( pBeam.SUB_Remove ) ); // Used LiveForTime instead
 		
 		// Remove on the next think cycle
-	//	pBeam.pev.nextthink = g_Engine.time + RCHG_DELAY_THINK; // Used LiveForTime instead
+	//	pBeam.pev.nextthink = g_Engine.time + RCHG_DELAY_THINK;
+
+		pBeam.LiveForTime( RCHG_DELAY_THINK );
 	}
 
 	CBaseEntity@ FindPlayer( float Radius )
