@@ -1,4 +1,5 @@
 string g_szCurrentMap;
+string g_szCurrentTrack;
 
 enum SPMaps
 {
@@ -57,6 +58,8 @@ void MapInit()
 void MapActivate()
 {
 	ReplaceCDAudio();
+
+	g_szCurrentTrack.Clear();
 }
 
 class CDAudioData
@@ -64,7 +67,7 @@ class CDAudioData
 	bool istrigger;
 	string targetname;
 	string model;
-	float health;
+	int track;
 	float delay;
 }
 
@@ -96,7 +99,7 @@ void ReplaceCDAudio()
 		data.istrigger = true;
 		data.targetname = pEntity.GetTargetname();
 		data.model = pEntity.pev.model;
-		data.health = pEntity.pev.health;
+		data.track = int( pEntity.pev.health );
 
 		@pDelay = cast<CBaseDelay@>( pEntity );
 		if ( pDelay !is null )
@@ -111,7 +114,7 @@ void ReplaceCDAudio()
 	{
 		data.istrigger = false;
 		data.targetname = pEntity.GetTargetname();
-		data.health = pEntity.pev.health;
+		data.track = int( pEntity.pev.health );
 
 		@pDelay = cast<CBaseDelay@>( pEntity );
 		if ( pDelay !is null )
@@ -135,12 +138,12 @@ void ReplaceCDAudio()
 
 		switch ( iGame )
 		{
-			case SP_GAME_BS: pEnt.pev.health = BShiftAudioTrack( data.health ); break;
-			case SP_GAME_OP4: pEnt.pev.health = data.health; break;
+			case SP_GAME_BS: pEnt.pev.iuser1 = BShiftAudioTrack( data.track ); break;
+			case SP_GAME_OP4: pEnt.pev.iuser1 = data.track; break;
 		}
 		
 		if ( g_szCurrentMap == "ba_canal1" )
-			data.delay += 17;
+			data.delay += 27;
 		
 		if ( data.delay > 0 )
 			pEnt.pev.fuser1 = data.delay;
@@ -232,15 +235,6 @@ const array<string> g_szTrack = { "dummy", "dummy",
 
 class trigger_music : ScriptBaseEntity
 {
-/*	void Precache()
-	{
-		BaseClass.Precache();
-
-		string szTrack = GetTrack( int( self.pev.health ) );
-		if ( !szTrack.IsEmpty() )
-			g_Game.PrecacheGeneric( szTrack );
-	}*/
-	
 	void Spawn()
 	{
 		if ( self.pev.angles != g_vecZero )
@@ -253,18 +247,22 @@ class trigger_music : ScriptBaseEntity
 		
 		if ( g_EngineFuncs.CVarGetFloat( "showtriggers" ) == 0 )
 			self.pev.effects |= EF_NODRAW;
-			
-		//self.Precache();
+	}
+	
+	void Think()
+	{
+		Play();
 	}
 	
 	void Touch( CBaseEntity@ pOther )
 	{
-		if ( !pOther.IsPlayer() )
+		if ( pOther is null || !pOther.IsPlayer() )
 			return;
 		
 		float flDelay = self.pev.fuser1;
+
 		if ( flDelay > 0 )
-			g_Scheduler.SetTimeout( @this, "Play", flDelay );
+			self.pev.nextthink = g_Engine.time + flDelay;
 		else
 			Play();
 	}
@@ -272,52 +270,46 @@ class trigger_music : ScriptBaseEntity
 	void Use( CBaseEntity@ pActivator, CBaseEntity@ pCaller, USE_TYPE useType, float value )
 	{
 		float flDelay = self.pev.fuser1;
+
 		if ( flDelay > 0 )
-			g_Scheduler.SetTimeout( @this, "Play", flDelay );
+			self.pev.nextthink = g_Engine.time + flDelay;
 		else
 			Play();
-
-		//g_Log.PrintF( "[GearBoxOST] flDelay = " + flDelay + "\n" );
 	}
 	
 	void Play()
 	{
-		PlayMP3Track( int( self.pev.health ) );
+		PlayMP3Track( self.pev.iuser1 );
 		g_EntityFuncs.Remove( self );
 	}
 }
 
 class target_music : ScriptBaseEntity
 {
-/*	void Precache()
-	{
-		BaseClass.Precache();
-
-		string szTrack = GetTrack( int( self.pev.health ) );
-		if ( !szTrack.IsEmpty() )
-			g_Game.PrecacheGeneric( szTrack );
-	}*/
-	
 	void Spawn()
 	{
 		self.pev.movetype = MOVETYPE_NONE;
 		self.pev.solid = SOLID_NOT;
-			
-	//	self.Precache();
+	}
+
+	void Think()
+	{
+		Play();
 	}
 
 	void Use( CBaseEntity@ pActivator, CBaseEntity@ pCaller, USE_TYPE useType, float value )
 	{
 		float flDelay = self.pev.fuser1;
+
 		if ( flDelay > 0 )
-			g_Scheduler.SetTimeout( @this, "Play", flDelay );
+			self.pev.nextthink = g_Engine.time + flDelay;
 		else
 			Play();
 	}
 	
 	void Play()
 	{
-		PlayMP3Track( int( self.pev.health ) );
+		PlayMP3Track( self.pev.iuser1 );
 		g_EntityFuncs.Remove( self );
 	}
 }
@@ -359,16 +351,26 @@ void PlayMP3Track( int iTrack )
 		return;
 	}
 
-	string szTrack = GetTrack( iTrack );
-	if ( szTrack.IsEmpty() )
-		return;
-	
 	CBaseEntity@ pWorld = g_EntityFuncs.Instance( 0 );
+	
+	if ( pWorld is null )
+		return;
 
 	if ( iTrack == -1 )
-		g_SoundSystem.StopSound( pWorld.edict(), CHAN_MUSIC, szTrack, false  );
-	else
-		g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, 0.5, ATTN_NONE );
-		//g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, VOL_NORM, ATTN_NONE );
+	{
+		if ( g_szCurrentTrack.IsEmpty() )
+			return;
 
+		g_SoundSystem.StopSound( pWorld.edict(), CHAN_MUSIC, g_szCurrentTrack, false );
+	}
+	else
+	{
+		string szTrack = GetTrack( iTrack );
+		if ( szTrack.IsEmpty() )
+			return;
+
+		g_szCurrentTrack = szTrack;
+		g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, 0.7, ATTN_NONE );
+	//	g_SoundSystem.PlaySound( pWorld.edict(), CHAN_MUSIC, szTrack, VOL_NORM, ATTN_NONE );
+	}
 }
