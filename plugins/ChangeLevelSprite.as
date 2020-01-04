@@ -57,10 +57,12 @@ void CreateSprite()
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
 	{
-		if ( pEntity.pev.solid == SOLID_BSP )
+		int iSolid = pEntity.pev.solid;
+	
+		if ( iSolid == SOLID_BSP )
 			continue;
 
-		if ( !pEntity.GetTargetname().IsEmpty() )
+		if ( !pEntity.GetTargetname().IsEmpty() && iSolid != SOLID_NOT )
 			continue;
 
 		if ( pEntity.pev.SpawnFlagBitSet( 2 ) )
@@ -72,7 +74,7 @@ void CreateSprite()
 	Vector vecCenter;
 	int iResult;
 
-	for ( uint i = 0; i < pCenterPos.length(); ++i )
+	for ( uint i = 0; i < pCenterPos.length(); i++ )
 	{
 		vecCenter = pCenterPos[i];
 		if ( vecCenter == g_vecZero )
