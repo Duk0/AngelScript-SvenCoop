@@ -21,6 +21,26 @@ void InfoEntity( const CCommand@ args )
 	
 	if ( szArg == "@me" )
 		@pEntity = pPlayer;
+	else if ( szArg == "@radius" )
+	{
+		float flRadius = atof( args.Arg( 2 ) );
+		
+		if ( flRadius < 20.0 )
+			flRadius = 20.0;
+
+		Vector vecOrigin = pPlayer.GetOrigin();
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityInSphere( pEntity, vecOrigin, flRadius, "*", "classname" ) ) !is null )
+		{
+			if ( pEntity.IsPlayer() || pEntity.entindex() == 0 )
+				continue;
+
+			if ( pEntity.GetClassname().CompareN( "weapon_", 7 ) == 0 )
+				continue;
+
+			break;
+		}
+	}
 	else if ( szArg.IsEmpty() )
 		@pEntity = g_Utility.FindEntityForward( pPlayer, 4096 );
 	else
@@ -32,7 +52,7 @@ void InfoEntity( const CCommand@ args )
 		}
 
 		if ( pEntity is null )
-		{	
+		{
 			while ( ( @pEntity = g_EntityFuncs.FindEntityByTargetname( pEntity, szArg ) ) !is null )
 			{
 				szSearchMethod = "Targetname";
@@ -54,6 +74,15 @@ void InfoEntity( const CCommand@ args )
 			while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "model", szArg ) ) !is null )
 			{
 				szSearchMethod = "Model";
+				break;
+			}
+		}
+
+		if ( pEntity is null )
+		{
+			while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "message", szArg ) ) !is null )
+			{
+				szSearchMethod = "Message";
 				break;
 			}
 		}
@@ -159,7 +188,12 @@ void InfoEntity( const CCommand@ args )
 	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictINT.get( keys[ uiIndex ], iValue ) && iValue != 0 )
-			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT " + keys[ uiIndex ] + " = " + iValue + "\n" );
+		{
+			if ( keys[ uiIndex ] == "flags" )
+				g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT flags = " + iValue + " " + GetEdictFlags( iValue ) + "\n" );
+			else
+				g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT " + keys[ uiIndex ] + " = " + iValue + "\n" );
+		}
 	}
 	
 	dictINT.deleteAll();
@@ -362,6 +396,11 @@ void InfoEntity( const CCommand@ args )
 		string szFormattedName = pMonster.m_FormattedName;
 		if ( !szFormattedName.IsEmpty() )
 			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "SZ Monster displayname = " + szFormattedName + "\n" );
+
+		CBaseEntity@ pEnemy = pMonster.m_hEnemy;
+		
+		if ( pEnemy !is null )
+			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT m_hEnemy = " + pEnemy.entindex() + "\n" );
 		
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B Monster Ally = " + ( pMonster.IsPlayerAlly() ? "Yes" : "No" )  + "\n" );
 	}
@@ -418,3 +457,42 @@ string VecTOString( Vector vec )
 	return "";
 }
 */
+
+string GetEdictFlags( int iFlags )
+{
+	string szBuffer;
+
+	if ( iFlags & FL_FLY != 0 ) szBuffer = "FL_FLY";
+	if ( iFlags & FL_SWIM != 0 ) szBuffer += "|FL_SWIM";
+	if ( iFlags & FL_CONVEYOR != 0 ) szBuffer += "|FL_CONVEYOR";
+	if ( iFlags & FL_CLIENT != 0 ) szBuffer += "|FL_CLIENT";
+	if ( iFlags & FL_INWATER != 0 ) szBuffer += "|FL_INWATER";
+	if ( iFlags & FL_MONSTER != 0 ) szBuffer += "|FL_MONSTER";
+	if ( iFlags & FL_GODMODE != 0 ) szBuffer += "|FL_GODMODE";
+	if ( iFlags & FL_NOTARGET != 0 ) szBuffer += "|FL_NOTARGET";
+	if ( iFlags & FL_SKIPLOCALHOST != 0 ) szBuffer += "|FL_SKIPLOCALHOST";
+	if ( iFlags & FL_ONGROUND != 0 ) szBuffer += "|FL_ONGROUND";
+	if ( iFlags & FL_PARTIALGROUND != 0 ) szBuffer += "|FL_PARTIALGROUND";
+	if ( iFlags & FL_WATERJUMP != 0 ) szBuffer += "|FL_WATERJUMP";
+	if ( iFlags & FL_FROZEN != 0 ) szBuffer += "|FL_FROZEN";
+	if ( iFlags & FL_FAKECLIENT != 0 ) szBuffer += "|FL_FAKECLIENT";
+	if ( iFlags & FL_DUCKING != 0 ) szBuffer += "|FL_DUCKING";
+	if ( iFlags & FL_FLOAT != 0 ) szBuffer += "|FL_FLOAT|";
+	if ( iFlags & FL_GRAPHED != 0 ) szBuffer += "|FL_GRAPHED";
+	if ( iFlags & FL_IMMUNE_WATER != 0 ) szBuffer += "|FL_IMMUNE_WATER";
+	if ( iFlags & FL_IMMUNE_SLIME != 0 ) szBuffer += "|FL_IMMUNE_SLIME";
+	if ( iFlags & FL_IMMUNE_LAVA != 0 ) szBuffer += "|FL_IMMUNE_LAVA";
+	if ( iFlags & FL_PROXY != 0 ) szBuffer += "|FL_PROXY";
+	if ( iFlags & FL_ALWAYSTHINK != 0 ) szBuffer += "|FL_ALWAYSTHINK";
+	if ( iFlags & FL_BASEVELOCITY != 0 ) szBuffer += "|FL_BASEVELOCITY";
+	if ( iFlags & FL_MONSTERCLIP != 0 ) szBuffer += "|FL_MONSTERCLIP";
+	if ( iFlags & FL_ONTRAIN != 0 ) szBuffer += "|FL_ONTRAIN";
+	if ( iFlags & FL_WORLDBRUSH != 0 ) szBuffer += "|FL_WORLDBRUSH";
+	if ( iFlags & FL_SPECTATOR != 0 ) szBuffer += "|FL_SPECTATOR";
+	if ( iFlags & FL_NOWEAPONS != 0 ) szBuffer += "|FL_NOWEAPONS";
+	if ( iFlags & FL_CUSTOMENTITY != 0 ) szBuffer += "|FL_CUSTOMENTITY";
+	if ( iFlags & FL_KILLME != 0 ) szBuffer += "|FL_KILLME";
+	if ( iFlags & FL_DORMANT != 0 ) szBuffer += "|FL_DORMANT";
+
+	return szBuffer;
+}
