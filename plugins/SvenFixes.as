@@ -1,12 +1,16 @@
-bool g_bFix = false;
+bool g_bFix511 = false; // non-functional killtarget for trigger_camera
+bool g_bFix521 = false; // Multisource used by non member DelayedUse.
 
 void PluginInit()
 {
 	g_Module.ScriptInfo.SetAuthor( "Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
 	
-	if ( g_Game.GetGameVersion() == 511 )
-		g_bFix = true;
+	uint u32Ver = g_Game.GetGameVersion();
+	if ( u32Ver == 511 )
+		g_bFix511 = true;
+	else if ( u32Ver == 521 )
+		g_bFix521 = true;
 }
 
 class CameraData
@@ -14,6 +18,90 @@ class CameraData
 	string targetname;
 	string killtarget;
 	float delay;
+}
+
+void MapInit()
+{
+	if ( g_Engine.cdAudioTrack > 0 )
+	{
+		g_Engine.cdAudioTrack = 0; // This cancel music while loading	
+		g_EngineFuncs.ServerPrint( "[SvenFixes] Canceled cdAudioTrack loading music.\n" );
+	}
+}
+
+void MapActivate()
+{
+	if ( !g_bFix521 )
+		return;
+
+	CBaseEntity@ pEntity = null;
+	CBaseDelay@ pDelay;
+	string szTargetName;
+	int iCount = 0;
+	array<string> aszMultiSrc;
+
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "multisource" ) ) !is null )
+	{
+		szTargetName = pEntity.GetTargetname();
+
+		if ( szTargetName.IsEmpty() )
+			continue;
+
+		if ( aszMultiSrc.find( szTargetName ) >= 0 )
+			continue;
+		
+		aszMultiSrc.insertLast( szTargetName );
+	}
+	
+	string szTarget, szFixTarget;
+	CBaseEntity@ pEnt = null;
+
+	for ( uint u32 = 0; u32 < aszMultiSrc.length(); u32++ )
+	{
+	/*	@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", aszMultiSrc[u32] ) ) !is null )
+		{
+		}*/
+		
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", aszMultiSrc[u32] );
+
+		if ( pEntity is null )
+			continue;
+
+		if ( pEntity.GetTargetname().EndsWith( "_521fix", String::CaseSensitive ) )
+			continue;
+
+		@pDelay = cast<CBaseDelay@>( pEntity );
+		if ( pDelay is null )
+			continue;
+
+		if ( pDelay.m_flDelay == 0.0 )
+			continue;
+			
+		szTarget = pEntity.pev.target;
+		szFixTarget = szTarget + "_521fix";
+
+		pEntity.pev.target = szFixTarget;
+		
+		g_EngineFuncs.ServerPrint( "[SvenFixes] MultiSrc target: " + szTarget + ", fix: " + szFixTarget + ".\n" );
+
+		@pEnt = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, false );
+		if ( pEnt is null )
+			continue;
+
+		pEnt.pev.target = szTarget;
+		pEnt.pev.targetname = szFixTarget;
+		pEnt.pev.spawnflags = 64;
+
+		iCount++;
+	}
+
+	if ( iCount > 0 )
+	{
+		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " multisource target delayed ents.\n" );
+		iCount = 0;
+	}
 }
 
 void MapStart()
@@ -28,7 +116,7 @@ void MapStart()
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_camera" ) ) !is null )
 	{
-		/* Not bug, but can be feature. Hide HUD for all players set. */
+		/* Not bug, but can be feature. Hide HUD when spawnflags All Players is set. */
 		if ( pEntity.pev.SpawnFlagBitSet( 8 ) )
 		{
 		//	pEntity.pev.spawnflags |= 256;
@@ -40,7 +128,7 @@ void MapStart()
 		}
 
 		/* Fix for non-functional killtarget of trigger_camera */
-		if ( !g_bFix )
+		if ( !g_bFix511 )
 			continue;
 
 		szTargetName = pEntity.GetTargetname();
@@ -61,13 +149,13 @@ void MapStart()
 		pStored.insertLast( data );
 	}
 	
-	for ( uint i = 0; i < pStored.length(); i++ )
+	for ( uint u32 = 0; u32 < pStored.length(); u32++ )
 	{
 		@pEntity = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, false );
 		if ( pEntity is null )
 			continue;
 			
-		data = pStored[i];
+		data = pStored[u32];
 
 		pEntity.pev.targetname = data.targetname;
 		pEntity.pev.spawnflags = 1;
@@ -103,9 +191,6 @@ void MapStart()
 		szClassname = pEntity.GetClassname();
 		if ( !szClassname.EndsWith( "_dead", String::CaseSensitive ) )
 			continue;
-		
-		/*if ( pEntity.pev.health == pEntity.pev.max_health )
-			continue;*/
 			
 		flMaxHealth = pEntity.pev.max_health;
 		
@@ -116,11 +201,14 @@ void MapStart()
 		else
 			pEntity.pev.health = flMaxHealth;
 
-		pEntity.pev.max_health = 1;
+	//	pEntity.pev.max_health = 1;
 		
 		iCount++;
 	}
 
 	if ( iCount > 0 )
+	{
 		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " monster_*_dead npcs.\n" );
+		iCount = 0;
+	}
 }
