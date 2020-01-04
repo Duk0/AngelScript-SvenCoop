@@ -51,9 +51,9 @@ void MapStart()
 
 		// some music is too loudly
 		if ( iVolume >= 10 )
-			iVolume = 6;
-		else if ( iVolume < 10 )
-			iVolume = 3;
+			iVolume = 7;
+		else if ( iVolume < 10 && iVolume > 5 )
+			iVolume = 5;
 
 		data.volume = iVolume;
 		data.spawnflags = 0;
@@ -85,7 +85,7 @@ void MapStart()
 		if ( pEntity.pev.SpawnFlagBitSet( 16 ) )
 			data.spawnflags |= 1;
 
-		if ( iTargets > 1 && !pEntity.pev.SpawnFlagBitSet( 32 ) )
+		if ( iTargets > 1 && !pEntity.pev.SpawnFlagBitSet( 32 ) || pEntity.pev.iuser1 == 2 )
 			data.spawnflags |= 2;
 
 		if ( pEntity.pev.SpawnFlagBitSet( 64 ) )
@@ -104,6 +104,9 @@ void MapStart()
 
 		pStored.insertLast( data );
 	}
+
+	if ( !dMusicData.isEmpty() )
+		dMusicData.deleteAll();
 
 	for ( uint i = 0; i < pStored.length(); i++ )
 	{
