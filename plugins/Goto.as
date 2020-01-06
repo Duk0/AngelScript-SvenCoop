@@ -1,7 +1,10 @@
-CCVar@ m_pVarGotoEnabled;
-bool m_bGotoEnabled;
-dictionary m_dNoGoto;
-array<string> m_pMovableEntList = { "func_door", "func_train", "func_tracktrain", "func_trackchange", "func_plat", "func_platrot", "func_rotating" };
+const float WAIT_TIME = 5.0;
+array<float> g_flWaitTime( g_Engine.maxClients + 1, 0.0 );
+
+CCVar@ g_pVarGotoEnabled;
+bool g_bGotoEnabled;
+dictionary g_dNoGoto;
+//array<string> g_pMovableEntList = { "func_door", "func_train", "func_tracktrain", "func_trackchange", "func_plat", "func_platrot", "func_rotating" };
 GotoMenu g_GotoMenu;
 
 void PluginInit()
@@ -11,17 +14,21 @@ void PluginInit()
 
 	g_Hooks.RegisterHook( Hooks::Player::ClientSay, @ClientSay );
 	g_Hooks.RegisterHook( Hooks::Player::ClientDisconnect, @ClientDisconnect );
+	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 
-	@m_pVarGotoEnabled = CCVar( "goto_enabled", "1", "Enable/Disable Goto", ConCommandFlag::AdminOnly, @GotoCallBack );
-	m_bGotoEnabled = m_pVarGotoEnabled.GetBool();
+	@g_pVarGotoEnabled = CCVar( "goto_enabled", "1", "Enable/Disable Goto", ConCommandFlag::AdminOnly, @GotoCallBack );
+	g_bGotoEnabled = g_pVarGotoEnabled.GetBool();
 	
 	g_EngineFuncs.ServerPrint( "[Goto] Reloaded...\n" );
 }
 
 void MapStart()
 {
-	if ( !m_dNoGoto.isEmpty() )
-		m_dNoGoto.deleteAll();
+	if ( !g_dNoGoto.isEmpty() )
+		g_dNoGoto.deleteAll();
+
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
+		g_flWaitTime[iPlayer] = g_Engine.time;
 }
 
 void GotoCallBack( CCVar@ cvar, const string& in szOldValue, float flOldValue )
@@ -30,8 +37,8 @@ void GotoCallBack( CCVar@ cvar, const string& in szOldValue, float flOldValue )
 
 	if ( int( flOldValue ) != cvar.GetInt() )
 	{
-		m_bGotoEnabled = cvar.GetBool();
-		g_EngineFuncs.ServerPrint( "Goto is " + ( m_bGotoEnabled ? "Enabled" : "Disabled" ) + "\n" );
+		g_bGotoEnabled = cvar.GetBool();
+		g_EngineFuncs.ServerPrint( "Goto is " + ( g_bGotoEnabled ? "Enabled" : "Disabled" ) + "\n" );
 	}
 }
 
@@ -49,6 +56,16 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 		{
 			if ( pPlayer is null || !pPlayer.IsConnected() )
 				return HOOK_CONTINUE;
+
+			int iPlayer = pPlayer.entindex();
+
+			if ( g_Engine.time - g_flWaitTime[iPlayer] < WAIT_TIME )
+			{
+				pParams.ShouldHide = true;
+				return HOOK_HANDLED;
+			}
+			
+			g_flWaitTime[iPlayer] = g_Engine.time;
 
 			string szPartName = pArguments.Arg( 1 );
 			szPartName.Trim();
@@ -76,14 +93,14 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 
 			string szSteamId = g_EngineFuncs.GetPlayerAuthId( pPlayer.edict() );
 			
-			if ( m_dNoGoto.exists( szSteamId ) )
+			if ( g_dNoGoto.exists( szSteamId ) )
 			{
-				m_dNoGoto.delete( szSteamId );
+				g_dNoGoto.delete( szSteamId );
 				g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] Players can teleport to you now.\n" );
 			}
 			else
 			{
-				m_dNoGoto.set( szSteamId, true );
+				g_dNoGoto.set( szSteamId, true );
 				g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] Nobody can teleport to you now.\n" );
 			}
 
@@ -99,15 +116,22 @@ HookReturnCode ClientDisconnect( CBasePlayer@ pPlayer )
 		return HOOK_CONTINUE;
 
 	string szSteamId = g_EngineFuncs.GetPlayerAuthId( pPlayer.edict() );
-	if ( m_dNoGoto.exists( szSteamId ) )
-		m_dNoGoto.delete( szSteamId );
+	if ( g_dNoGoto.exists( szSteamId ) )
+		g_dNoGoto.delete( szSteamId );
 
 	return HOOK_CONTINUE;
 }
 
-bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
+HookReturnCode MapChange()
 {
-	if ( !m_bGotoEnabled )
+	g_Scheduler.ClearTimerList();
+
+	return HOOK_CONTINUE;
+}
+
+bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHiden = false )
+{
+	if ( !g_bGotoEnabled )
 	{
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] Goto Disabled!\n" );
 		return true;
@@ -132,10 +156,12 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
 	string szPlayerName;
 	int iCount = 0;
 	array<CBasePlayer@> pRandom;
+	
+	CBasePlayer@ pTarget;
 
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	for ( int iTarget = 1; iTarget <= g_Engine.maxClients; iTarget++ )
 	{
-		CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
+		@pTarget = g_PlayerFuncs.FindPlayerByIndex( iTarget );
 
 		if ( pTarget is null || !pTarget.IsConnected() )
 			continue;
@@ -177,16 +203,22 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] More than one player matches the pattern\n" );
 		return true;
 	}
+	
+/*	if ( !FNullEnt( pDestPlayer.pev ) )
+		return true;*/
 
 	szPlayerName = pDestPlayer.pev.netname;
 	string szSteamId = g_EngineFuncs.GetPlayerAuthId( pDestPlayer.edict() );
 			
-	if ( m_dNoGoto.exists( szSteamId ) )
+	if ( g_dNoGoto.exists( szSteamId ) && !IsPlayerServerOwner( pPlayer ) )
 	{
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] The Player " + szPlayerName + " disabled goto\n" );
 		g_PlayerFuncs.ClientPrint( pDestPlayer, HUD_PRINTTALK, "[AS] The Player " + pPlayer.pev.netname + " trying goto you\n" );
 		return true;
 	}
+
+	if ( pDestPlayer.pev.movetype == MOVETYPE_NOCLIP )
+		return false;
 
 	if ( pDestPlayer.Classify() != pPlayer.Classify() )
 	{
@@ -206,13 +238,17 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
 		return false;
 	}
 
-	CBaseEntity@ pEntity = g_EntityFuncs.Instance( pDestPlayer.pev.groundentity );
-	if ( pEntity !is null )
+	if ( g_EntityFuncs.IsValidEntity( pDestPlayer.pev.groundentity ) )
 	{
-		if ( m_pMovableEntList.find( pEntity.GetClassname() ) >= 0 && pEntity.IsMoving() && pEntity.pev.speed != 0 )
+		CBaseEntity@ pEntity = g_EntityFuncs.Instance( pDestPlayer.pev.groundentity );
+		if ( pEntity !is null )
 		{
-			g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] The Player " + szPlayerName + " is on an moving object\n" );
-			return false;
+		//	if ( g_pMovableEntList.find( pEntity.GetClassname() ) >= 0 && pEntity.IsMoving() && pEntity.pev.speed != 0 )
+			if ( pEntity.IsMoving() && pEntity.pev.speed != 0 )
+			{
+				g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] The Player " + szPlayerName + " is on an moving object\n" );
+				return false;
+			}
 		}
 	}
 
@@ -223,6 +259,7 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
 	{
 		pPlayer.pev.flags |= FL_DUCKING;
 		pPlayer.pev.view_ofs = Vector( 0.0, 0.0, 12.0 );
+	//	pPlayer.pev.view_ofs.z = pDestPlayer.pev.view_ofs.z;
 	}
 	//Teleport
 	pPlayer.SetOrigin( pDestPlayer.GetOrigin() );
@@ -231,7 +268,7 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHided = false )
 	pPlayer.pev.angles.z = 0; //Do a barrel roll, not
 	pPlayer.pev.fixangle = FAM_FORCEVIEWANGLES; // Applies the player angles
 	
-	if ( bHided )
+	if ( bHiden )
 		g_PlayerFuncs.ClientPrintAll( HUD_PRINTTALK, "[AS] " + pPlayer.pev.netname + " teleported to " + szPlayerName + "\n" );
 	else
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTTALK, "[AS] Teleported to " + szPlayerName + "\n" );
@@ -279,10 +316,12 @@ final class GotoMenu
 		m_pMenu.SetTitle( "Goto Menu:\n" );
 		
 		array<string> pStoredNames;
+		
+		CBasePlayer@ pTarget;
 
-		for ( int i = 1; i <= g_Engine.maxClients; ++i )
+		for ( int i = 1; i <= g_Engine.maxClients; i++ )
 		{
-			CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( i );
+			@pTarget = g_PlayerFuncs.FindPlayerByIndex( i );
 
 			if ( pTarget is null || !pTarget.IsConnected() || !pTarget.IsAlive() )
 				continue;
@@ -290,7 +329,7 @@ final class GotoMenu
 			if ( pPlayer is pTarget )
 				continue;
 				
-/*			if ( m_dNoGoto.exists( g_EngineFuncs.GetPlayerAuthId( pTarget.edict() ) ) )
+/*			if ( g_dNoGoto.exists( g_EngineFuncs.GetPlayerAuthId( pTarget.edict() ) ) )
 				continue;*/
 				
 			pStoredNames.insertLast( pTarget.pev.netname );
@@ -301,7 +340,7 @@ final class GotoMenu
 			if ( pStoredNames.length() > 1 )
 				m_pMenu.AddItem( "[Random Player]", any( 1 ) );
 
-			if ( !m_dNoGoto.isEmpty() )
+			if ( !g_dNoGoto.isEmpty() )
 				m_pMenu.AddItem( "[Remove Nogoto]", any( 2 ) );
 		}
 		
@@ -326,13 +365,13 @@ final class GotoMenu
 		if ( pItem.m_pUserData !is null )
 			pItem.m_pUserData.retrieve( iUserData );
 
-		if ( iUserData == 2 && !m_dNoGoto.isEmpty() )
-			m_dNoGoto.deleteAll();
+		if ( iUserData == 2 && !g_dNoGoto.isEmpty() )
+			g_dNoGoto.deleteAll();
 		
 		if ( iUserData <= 1 )
 			DoGoto( pPlayer, iUserData == 1 ? "@random" : pItem.m_szName, true );
 
-		g_Scheduler.SetTimeout( this, "RefeshMenu", 0.01, @pPlayer );
+		g_Scheduler.SetTimeout( @this, "RefeshMenu", 0.01, @pPlayer );
 	}
 }
 
@@ -349,13 +388,13 @@ void CmdRemoveNoGoto( const CCommand@ args )
 		return;
 	}
 
-	if ( m_dNoGoto.isEmpty() )
+	if ( g_dNoGoto.isEmpty() )
 	{
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "[AS] Nogoto nothing stored.\n" );
 		return;
 	}
 
-	m_dNoGoto.deleteAll();
+	g_dNoGoto.deleteAll();
 	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "[AS] Nogoto deleted all.\n" );
 }
 
@@ -374,14 +413,14 @@ void CmdToggleGoto( const CCommand@ args )
 		return;
 	}
 
-	if ( !m_bGotoEnabled )
+	if ( !g_bGotoEnabled )
 	{
-		m_pVarGotoEnabled.SetInt( 1 );
+		g_pVarGotoEnabled.SetInt( 1 );
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "[AS] Goto Enabled.\n" );
 	}
 	else
 	{
-		m_pVarGotoEnabled.SetInt( 0 );
+		g_pVarGotoEnabled.SetInt( 0 );
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "[AS] Goto Disabled.\n" );
 	}
 }
@@ -391,4 +430,9 @@ CClientCommand togglegoto( "togglegoto", "togglegoto", @CmdToggleGoto );
 bool IsPlayerAdmin( CBasePlayer@ pPlayer )
 {
 	return g_PlayerFuncs.AdminLevel( pPlayer ) >= ADMIN_YES;
+}
+
+bool IsPlayerServerOwner( CBasePlayer@ pPlayer )
+{
+	return g_PlayerFuncs.AdminLevel( pPlayer ) == ADMIN_OWNER;
 }
