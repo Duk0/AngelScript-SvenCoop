@@ -113,7 +113,7 @@ void FixMe()
 		if ( !szMaster.IsEmpty() && szTargetName != szMaster )
 			continue;
 
-		while ( ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "*" ) ) !is null && !bFound )
+		while ( !bFound && ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "*" ) ) !is null )
 		{
 			//if ( pEnt.GetClassname() == "trigger_teleport" )
 			if ( pEnt is pEntity )
@@ -128,7 +128,10 @@ void FixMe()
 				bHasTarget = true;
 		}
 
-		while ( ( @pEnt = g_EntityFuncs.FindEntityByString( pEnt, "target", szTargetName ) ) !is null && !bFound )
+		if ( !bFound )
+			@pEnt = null;
+
+		while ( !bFound && ( @pEnt = g_EntityFuncs.FindEntityByString( pEnt, "target", szTargetName ) ) !is null )
 		{
 			if ( pEnt.GetClassname() == "trigger_changetarget" )
 				bFound = true;
@@ -149,7 +152,7 @@ void FixMe()
 		
 		vecOrigin = pEntity.Center();
 		szModel = pEntity.pev.model;
-		g_pEntities.insertLast( "trigger_teleport, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", model: " + szModel + ", targetname: " + szTargetName + "\n" );
+		g_pEntities.insertLast( "trigger_teleport, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ", model: " + szModel + ", targetname: " + szTargetName + " non-functional.\n" );
 
 		iCount++;
 	}
@@ -160,8 +163,8 @@ void FixMe()
 		g_iIssues += iCount;
 		iCount = 0;
 	}
-		
-/*	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_multiple" ) ) !is null )
+/*		
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_multiple" ) ) !is null )
 	{
 		@pToggle = cast<CBaseToggle@>( pEntity );
 		if ( pToggle is null )
@@ -185,8 +188,8 @@ void FixMe()
 		g_pEntities.insertLast( "=> Found " + iCount + " issues with trigger_multiple!\n" );
 		g_iIssues += iCount;
 		iCount = 0;
-	}*/
-
+	}
+*/
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_relay" ) ) !is null )
 	{
 		szTargetName = pEntity.GetTargetname();
@@ -281,7 +284,27 @@ void FixMe()
 		g_iIssues += iCount;
 		iCount = 0;
 	}
+/*
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_random_time" ) ) !is null )
+	{
+		if ( pEntity.pev.SpawnFlagBitSet( 2 ) )
+			continue;
 
+		szTargetName = pEntity.GetTargetname();	
+		vecOrigin = pEntity.GetOrigin();
+
+		g_pEntities.insertLast( "trigger_random_time, origin: " + vecOrigin.x + " " + vecOrigin.y + " " + vecOrigin.z + ( szTargetName.IsEmpty() ? "" : ", targetname: " + szTargetName ) + " without Trigger Once flag.\n" );
+		
+		iCount++;
+	}
+
+	if ( iCount > 0 )
+	{
+		g_pEntities.insertLast( "=> Found " + iCount + " issues with trigger_random_time!\n" );
+		g_iIssues += iCount;
+		iCount = 0;
+	}
+*/
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
 	{		
 		iCount++;
