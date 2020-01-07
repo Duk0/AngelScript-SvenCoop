@@ -98,7 +98,7 @@ void MapActivate()
 	}
 
 	if ( iCount > 0 )
-		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " multisource target delayed ents.\n" );
+		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " multisource target delayed use.\n" );
 }
 
 void MapStart()
