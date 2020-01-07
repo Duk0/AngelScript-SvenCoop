@@ -5,12 +5,12 @@ void PluginInit()
 {
 	g_Module.ScriptInfo.SetAuthor( "Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
-	
-	uint u32Ver = g_Game.GetGameVersion();
-	if ( u32Ver == 511 )
-		g_bFix511 = true;
-	else if ( u32Ver == 521 )
-		g_bFix521 = true;
+
+	switch ( g_Game.GetGameVersion() )
+	{
+		case 511: g_bFix511 = true; break;
+		case 521: g_bFix521 = true; break;
+	}
 }
 
 class CameraData
@@ -24,7 +24,7 @@ void MapInit()
 {
 	if ( g_Engine.cdAudioTrack > 0 )
 	{
-		g_Engine.cdAudioTrack = 0; // This cancel music while loading	
+		g_Engine.cdAudioTrack = 0; // This prevent play music while loading
 		g_EngineFuncs.ServerPrint( "[SvenFixes] Canceled cdAudioTrack loading music.\n" );
 	}
 }
@@ -35,9 +35,7 @@ void MapActivate()
 		return;
 
 	CBaseEntity@ pEntity = null;
-	CBaseDelay@ pDelay;
 	string szTargetName;
-	int iCount = 0;
 	array<string> aszMultiSrc;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "multisource" ) ) !is null )
@@ -54,7 +52,9 @@ void MapActivate()
 	}
 	
 	string szTarget, szFixTarget;
-	CBaseEntity@ pEnt = null;
+	CBaseDelay@ pDelay;
+	CBaseEntity@ pEnt;
+	int iCount = 0;
 
 	for ( uint u32 = 0; u32 < aszMultiSrc.length(); u32++ )
 	{
@@ -98,10 +98,7 @@ void MapActivate()
 	}
 
 	if ( iCount > 0 )
-	{
 		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " multisource target delayed ents.\n" );
-		iCount = 0;
-	}
 }
 
 void MapStart()
@@ -179,7 +176,8 @@ void MapStart()
 	}
 
 	/* Fix for possibility healing monster_*_dead npcs */
-	@pEntity = null;
+	// Fixed in v5.21
+/*	@pEntity = null;
 	string szClassname;
 	float flMaxHealth;
 	
@@ -201,14 +199,11 @@ void MapStart()
 		else
 			pEntity.pev.health = flMaxHealth;
 
-	//	pEntity.pev.max_health = 1;
+		pEntity.pev.max_health = 1;
 		
 		iCount++;
 	}
 
 	if ( iCount > 0 )
-	{
-		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " monster_*_dead npcs.\n" );
-		iCount = 0;
-	}
+		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " monster_*_dead npcs.\n" );*/
 }
