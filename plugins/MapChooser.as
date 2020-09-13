@@ -310,7 +310,7 @@ void checkVotes()
 {
 	int b = 0;
 	
-	for ( int a = 0; a < g_iMapVoteNum; ++a )
+	for ( int a = 0; a < g_iMapVoteNum; a++ )
 	{
 		if ( g_pVoteCount[b] < g_pVoteCount[a] )
 			b = a;
@@ -333,9 +333,16 @@ void checkVotes()
 	string szMap;
 	if ( g_pVoteCount[b] > 0 && g_pVoteCount[SELECTMAPS + 1] <= g_pVoteCount[b] )
 	{
-		szMap = g_pMapName[g_pNextName[b]];
+		g_Log.PrintF( g_szModuleName + "b: " + b + ", g_pNextName[b]: " + g_pNextName[b] + ", g_pVoteCount[b]: " + g_pVoteCount[b] + "\n" );
 
-		ChangeNextMap( szMap );
+		if ( b > SELECTMAPS )
+			g_Log.PrintF( g_szModuleName + "ERROR! b > SELECTMAPS\n" );
+		else
+		{
+			szMap = g_pMapName[g_pNextName[b]];
+
+			ChangeNextMap( szMap );
+		}
 	}
 	
 	if ( szMap.IsEmpty() )
@@ -395,11 +402,12 @@ void countVoteCallback( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const 
 			else if ( iSlot < SELECTMAPS + 1 )
 				g_PlayerFuncs.ClientPrintAll( HUD_PRINTTALK, string( pPlayer.pev.netname ) + " chose " + g_pMapName[g_pNextName[iSlot - 1]] + "\n" ); // pItem.szName
 		}
-		++g_pVoteCount[iSlot - 1];
+
+		g_pVoteCount[iSlot - 1]++;
 	}
 
 	if ( pItem is null )
-		++g_pVoteCount[SELECTMAPS + 1]; // used Exit key as "None" - nothing
+		g_pVoteCount[SELECTMAPS + 1]++; // used Exit key as "None" - nothing
 
 	if ( @menu !is null && menu.IsRegistered() )
 	{
@@ -409,7 +417,7 @@ void countVoteCallback( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const 
 
 bool isInMenu( int id )
 {
-	for ( int a = 0; a < g_iMapVoteNum; ++a )
+	for ( int a = 0; a < g_iMapVoteNum; a++ )
 	{
 		if ( id == g_pNextName[a] )
 			return true;
@@ -456,7 +464,7 @@ void voteNextmap()
 		return;
 	}
 	
-	for ( g_iMapVoteNum = 0; g_iMapVoteNum < dmax; ++g_iMapVoteNum )
+	for ( g_iMapVoteNum = 0; g_iMapVoteNum < dmax; g_iMapVoteNum++ )
 	{
 		a = Math.RandomLong( 0, g_iMapNums - 1 );
 			
@@ -813,7 +821,7 @@ void RockTheVote( CBasePlayer@ pPlayer )
 		g_bVoteFinished = false;
 		@g_pVoteNextMapFunction = g_Scheduler.SetTimeout( "voteNextmap", 15.0 );
 
-		for ( int i = 1; i <= g_Engine.maxClients; ++i )
+		for ( int i = 1; i <= g_Engine.maxClients; i++ )
 			g_pRocked[i] = false;
 
 		g_iRocks = 0;
