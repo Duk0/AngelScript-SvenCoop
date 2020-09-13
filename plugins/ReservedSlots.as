@@ -15,7 +15,6 @@ void PluginInit()
 	{
 		g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 		g_Hooks.RegisterHook( Hooks::Player::CanPlayerUseReservedSlot, @CanPlayerUseReservedSlot );
-		//g_Hooks.RegisterHook( Hooks::Player::ClientConnected, @ClientConnected );
 		g_Hooks.RegisterHook( Hooks::Player::ClientPutInServer, @ClientPutInServer );
 		g_Hooks.RegisterHook( Hooks::Player::ClientDisconnect, @ClientDisconnect );
 	}
@@ -63,7 +62,6 @@ HookReturnCode CanPlayerUseReservedSlot( edict_t@ pEdict, const string& in szPla
 	if ( pPlayer is null )
 		return HOOK_CONTINUE;
 
-	//if ( g_PlayerFuncs.AdminLevel( pPlayer ) >= ADMIN_YES || g_dReservationsIni.exists( szSteamId ) )
 	if ( g_PlayerFuncs.AdminLevel( pPlayer ) >= ADMIN_YES )
 	{
 		g_EngineFuncs.ServerPrint( g_szModuleName + szPlayerName + " (" +  szIPAddress + ") used reserved slot.\n" );
@@ -87,22 +85,6 @@ HookReturnCode CanPlayerUseReservedSlot( edict_t@ pEdict, const string& in szPla
 
 	return HOOK_CONTINUE;
 }
-
-/*
-HookReturnCode ClientConnected( edict_t@ pEntity, const string& in szPlayerName, const string& in szPlayerIP, bool& out bBool, string& out szOut )
-{
-	int iPlayer = g_EntityFuncs.EntIndex( pEntity );
-	CBasePlayer@ pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
-
-	if ( pPlayer !is null )
-		g_EngineFuncs.ServerPrint( "pPlayer ok\n" );
-	else
-		g_EngineFuncs.ServerPrint( "pPlayer is null\n" );
-
-	g_EngineFuncs.ServerPrint( "szPlayerName = " + szPlayerName + " szPlayerIP = " + szPlayerIP + "\n" );
-	return HOOK_CONTINUE;
-}
-*/
 
 HookReturnCode ClientPutInServer( CBasePlayer@ pPlayer )
 {
