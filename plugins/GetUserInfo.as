@@ -41,7 +41,7 @@ void CmdGetInfo( const CCommand@ args )
 		uint uiCount = g_pUserInfo.length();
 		string szOutput;
 		
-		for ( uint i = 0; i < uiCount; ++i )
+		for ( uint i = 0; i < uiCount; i++ )
 			szOutput += g_pUserInfo[i] + " " + pUserInfo.GetValue( g_pUserInfo[i] ) + "\n";
 		
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "Setinfo for player: " + pTarget.pev.netname + "\n" + szOutput );
@@ -52,7 +52,7 @@ void CmdGetInfo( const CCommand@ args )
 		
 	if ( szValue.IsEmpty() )
 	{
-		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "Keyvalue not found\n" );
+		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "Value is empty\n" );
 		return;
 	}
 		
@@ -102,9 +102,11 @@ void CmdSetInfo( const CCommand@ args )
 
 void ShowActivityToAdmins( CBasePlayer@ pPlayer, const string& in szMessage )
 {
-	for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+	CBasePlayer@ pTarget;
+
+	for ( int iIndex = 1; iIndex <= g_PlayerFuncs.GetNumPlayers(); iIndex++ )
 	{
-		CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
+		@pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 		
 		if ( pTarget is null || !pTarget.IsConnected() )
 			continue;
@@ -125,7 +127,7 @@ CBasePlayer@ GetTargetPlayer( CBasePlayer@ pPlayer, const string& in szNameOrUse
 	{
 		CBasePlayer@ pTempPlayer = null;
 		string szPlayerName;
-		for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+		for ( int iIndex = 1; iIndex <= g_PlayerFuncs.GetNumPlayers(); iIndex++ )
 		{
 			@pTempPlayer = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 			
@@ -148,7 +150,7 @@ CBasePlayer@ GetTargetPlayer( CBasePlayer@ pPlayer, const string& in szNameOrUse
 	if ( pTarget is null && szNameOrUserId[0] == "#" )
 	{
 		string szUserId;
-		for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+		for ( int iIndex = 1; iIndex <= g_PlayerFuncs.GetNumPlayers(); iIndex++ )
 		{
 			@pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 			
