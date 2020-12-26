@@ -104,10 +104,10 @@ void InfoEntity( const CCommand@ args )
 		msg.WriteCoord( absmax.x );
 		msg.WriteCoord( absmax.y );
 		msg.WriteCoord( absmax.z );
-		msg.WriteShort( int16( 50 ) ); // life in 0.1 s
-		msg.WriteByte( uint8( 255 ) ); // R
-		msg.WriteByte( uint8( 10 ) ); // G
-		msg.WriteByte( uint8( 10 ) ); // B
+		msg.WriteShort( 50 ); // life in 0.1 s
+		msg.WriteByte( 255 ); // R
+		msg.WriteByte( 10 ); // G
+		msg.WriteByte( 10 ); // B
 		msg.End();
 	}
 
@@ -285,7 +285,7 @@ void InfoEntity( const CCommand@ args )
 	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		if ( dictVEC.get( keys[ uiIndex ], vecValue ) && vecValue != g_vecZero )
-			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "VEC " + keys[ uiIndex ] + " = (" + vecValue.x + ", " + vecValue.y + ", " + vecValue.z + ")\n" );
+			g_EngineFuncs.ClientPrintf( pPlayer, print_console, "VEC " + keys[ uiIndex ] + " = (" + vecValue.x + " " + vecValue.y + " " + vecValue.z + ")\n" );
 	}
 	
 	dictVEC.deleteAll();
@@ -447,16 +447,6 @@ void InfoEntity( const CCommand@ args )
 }
 
 CClientCommand ent_info( "ent_info", "Entity Info", @InfoEntity ); //.ent_info
-
-/*
-string VecTOString( Vector vec )
-{
-	if ( vec.x != 0.0 || vec.y != 0.0 || vec.z != 0.0 )
-		return "(" + vec.x + ", " + vec.y + ", " + vec.z + ")";
-
-	return "";
-}
-*/
 
 string GetEdictFlags( int iFlags )
 {
