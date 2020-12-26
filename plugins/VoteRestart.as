@@ -1,4 +1,5 @@
 const Cvar@ g_pCvarVoteAllow, g_pCvarVoteTimeCheck, g_pCvarVoteMapRequired;
+string g_szPlayerName;
 
 void PluginInit()
 {
@@ -35,32 +36,39 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 			if ( pPlayer is null || !pPlayer.IsConnected() )
 				return HOOK_CONTINUE;
 
-			if ( g_pCvarVoteAllow.value == 0 )
-			{
-				g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "Voting not allowed on server.\n" );
-				return HOOK_CONTINUE;
-			}
-
-			if ( g_pCvarVoteMapRequired.value < 0 )
-			{
-				g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "This type of vote is disabled.\n" );
-				return HOOK_CONTINUE;
-			}
-
-			StartMapRestartVote( pPlayer );
+			RestartVote( pPlayer );
 		}
 	}
 	return HOOK_CONTINUE;
 }
 
-void StartMapRestartVote( CBasePlayer@ pPlayer )
+void RestartVote( CBasePlayer@ pPlayer )
 {
-	if ( g_Utility.VoteActive() )
+	if ( g_pCvarVoteAllow !is null && g_pCvarVoteAllow.value < 1 )
 	{
-		g_EngineFuncs.ClientPrintf( pPlayer, print_center, "Can't start vote. Other vote in progress.\n" );
+		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "Voting not allowed on server.\n" );
 		return;
 	}
 
+	if ( g_pCvarVoteMapRequired.value < 0 )
+	{
+		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "This type of vote is disabled.\n" );
+		return;
+	}
+
+	if ( g_Utility.VoteActive() )
+	{
+		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "Can't start vote. Other vote in progress.\n" );
+		return;
+	}
+	
+	g_szPlayerName = pPlayer.pev.netname;
+	
+	StartMapRestartVote();
+}
+
+void StartMapRestartVote()
+{
 	float flVoteTime = g_pCvarVoteTimeCheck.value;
 	
 	if ( flVoteTime <= 0 )
@@ -77,8 +85,11 @@ void StartMapRestartVote( CBasePlayer@ pPlayer )
 	vote.SetVoteEndCallback( @RestartMapVoteEnd );
 	
 	vote.Start();
+
+	if ( g_szPlayerName.IsEmpty() )
+		g_szPlayerName = "*Empty*";
 	
-	g_PlayerFuncs.ClientPrintAll( HUD_PRINTNOTIFY, vote.GetName() + " started by " + pPlayer.pev.netname + "\n" );
+	g_PlayerFuncs.ClientPrintAll( HUD_PRINTNOTIFY, vote.GetName() + " started by " + g_szPlayerName + "\n" );
 }
 
 void RestartMapVoteBlocked( Vote@ pVote, float flTime )
