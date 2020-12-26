@@ -1,12 +1,16 @@
 bool g_bLastStatus = false;
+const Cvar@ g_pCvarSurvivalVoteallow;
+string g_szPlayerName;
 
 void PluginInit()
 {
 	g_Module.ScriptInfo.SetAuthor( "Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
-
+	
 	g_Hooks.RegisterHook( Hooks::Player::ClientSay, @ClientSay );
 	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
+
+	@g_pCvarSurvivalVoteallow = g_EngineFuncs.CVarGetPointer( "mp_survival_voteallow" );
 }
 
 void MapStart()
@@ -16,8 +20,6 @@ void MapStart()
 		g_EngineFuncs.ServerPrint( "[SurvivaManager] Survival Disabling...\n"  );
 		g_SurvivalMode.Disable();
 	}
-
-//	g_EngineFuncs.ServerPrint( "[SurvivaManager] Classic is " + ( g_ClassicMode.IsEnabled() ? "Enabled" : "Disabled" )  + ".\n"  );
 
 	if ( g_SurvivalMode.MapSupportEnabled() )
 		g_EngineFuncs.ServerPrint( "[SurvivaManager] Survival is " + ( g_SurvivalMode.IsEnabled() ? "Enabled" : "Disabled" )  + ".\n"  );
@@ -40,7 +42,7 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 			if ( pPlayer is null || !pPlayer.IsConnected() )
 				return HOOK_CONTINUE;
 
-			StartSurvivalModeVote( pPlayer );
+			SurvivalVote( pPlayer );
 		}
 	}
 
@@ -56,12 +58,20 @@ HookReturnCode MapChange()
 		if ( g_bLastStatus )
 			g_bLastStatus = false;
 	}
+	
+	g_Scheduler.ClearTimerList();
 
 	return HOOK_CONTINUE;
 }
 
-void StartSurvivalModeVote( CBasePlayer@ pPlayer )
+void SurvivalVote( CBasePlayer@ pPlayer )
 {
+	if ( g_pCvarSurvivalVoteallow !is null && g_pCvarSurvivalVoteallow.value < 1 )
+	{
+		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "Survival Mode Voting not allowed.\n" );
+		return;
+	}
+
 	if ( g_Utility.VoteActive() )
 	{
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTCENTER, "Can't start vote. Other vote in progress.\n" );
@@ -73,7 +83,14 @@ void StartSurvivalModeVote( CBasePlayer@ pPlayer )
 		g_PlayerFuncs.ClientPrint( pPlayer, HUD_PRINTNOTIFY, "Survival Mode is not supported on this map.\n" );
 		return;
 	}
+	
+	g_szPlayerName = pPlayer.pev.netname;
+	
+	StartSurvivalModeVote();
+}
 
+void StartSurvivalModeVote()
+{
 	float flVoteTime = g_EngineFuncs.CVarGetFloat( "mp_votetimecheck" );
 	
 	if ( flVoteTime <= 0 )
@@ -91,7 +108,10 @@ void StartSurvivalModeVote( CBasePlayer@ pPlayer )
 	
 	vote.Start();
 	
-	g_PlayerFuncs.ClientPrintAll( HUD_PRINTNOTIFY, ( g_SurvivalMode.IsEnabled() ? "Disable" : "Enable" ) + " " + vote.GetName() + " started by " + pPlayer.pev.netname + "\n" );
+	if ( g_szPlayerName.IsEmpty() )
+		g_szPlayerName = "*Empty*";
+	
+	g_PlayerFuncs.ClientPrintAll( HUD_PRINTNOTIFY, ( g_SurvivalMode.IsEnabled() ? "Disable" : "Enable" ) + " " + vote.GetName() + " started by " + g_szPlayerName + "\n" );
 }
 
 void SurvivalModeVoteBlocked( Vote@ pVote, float flTime )
