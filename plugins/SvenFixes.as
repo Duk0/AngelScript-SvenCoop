@@ -1,17 +1,19 @@
 bool g_bFix511 = false; // non-functional killtarget for trigger_camera
-bool g_bFix521 = false; // Multisource used by non member DelayedUse.
-bool g_bFix523 = false; // Explosives only func_breakable with filled Targetname doesn't take damage from player rpg
+// 5.21 - Multisource used by non member DelayedUse.
+// 5.23 - Explosives only func_breakable with filled Targetname doesn't take damage from player rpg
+
+uint g_nVersion;
 
 void PluginInit()
 {
 	g_Module.ScriptInfo.SetAuthor( "Duko" );
 	g_Module.ScriptInfo.SetContactInfo( "group.midu.cz" );
 
-	switch ( g_Game.GetGameVersion() )
+	g_nVersion = g_Game.GetGameVersion();
+
+	switch ( g_nVersion )
 	{
 		case 511: g_bFix511 = true; break;
-		case 521: g_bFix521 = true; break;
-		case 523: g_bFix523 = true; break;
 	}
 }
 
@@ -33,7 +35,7 @@ void MapInit()
 
 void MapActivate()
 {
-	if ( !g_bFix523 )
+	if ( g_nVersion > 523 )
 		return;
 
 	CBaseEntity@ pEntity = null;
@@ -63,7 +65,7 @@ void MapActivate()
 	
 	g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " func_breakable ents.\n" );
 
-	if ( !g_bFix521 )
+	if ( g_nVersion > 521 )
 		return;
 
 	@pEntity = null;
