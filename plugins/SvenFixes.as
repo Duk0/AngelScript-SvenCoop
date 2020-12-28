@@ -1,5 +1,6 @@
 bool g_bFix511 = false; // non-functional killtarget for trigger_camera
 bool g_bFix521 = false; // Multisource used by non member DelayedUse.
+bool g_bFix523 = false; // Explosives only func_breakable with filled Targetname doesn't take damage from player rpg
 
 void PluginInit()
 {
@@ -10,6 +11,7 @@ void PluginInit()
 	{
 		case 511: g_bFix511 = true; break;
 		case 521: g_bFix521 = true; break;
+		case 523: g_bFix523 = true; break;
 	}
 }
 
@@ -31,11 +33,40 @@ void MapInit()
 
 void MapActivate()
 {
-	if ( !g_bFix521 )
+	if ( !g_bFix523 )
 		return;
 
 	CBaseEntity@ pEntity = null;
 	string szTargetName;
+	int iCount = 0;
+
+	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_breakable" ) ) !is null )
+	{
+		if ( !pEntity.pev.SpawnFlagBitSet( 512 ) ) // Explosives Only
+			continue;
+
+		szTargetName = pEntity.GetTargetname();
+
+		if ( szTargetName.IsEmpty() ) // Targetname set
+			continue;
+
+		if ( pEntity.Classify() > CLASS_NONE )
+			continue;
+
+		pEntity.ClearClassification();
+		pEntity.SetClassification( CLASS_HUMAN_MILITARY );
+
+		g_EngineFuncs.ServerPrint( "[SvenFixes] func_breakable: " + szTargetName + "\n" );
+
+		iCount++;
+	}
+	
+	g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " func_breakable ents.\n" );
+
+	if ( !g_bFix521 )
+		return;
+
+	@pEntity = null;
 	array<string> aszMultiSrc;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "multisource" ) ) !is null )
@@ -54,17 +85,17 @@ void MapActivate()
 	string szTarget, szFixTarget;
 	CBaseDelay@ pDelay;
 	CBaseEntity@ pEnt;
-	int iCount = 0;
+	iCount = 0;
 
-	for ( uint u32 = 0; u32 < aszMultiSrc.length(); u32++ )
+	for ( uint n = 0; n < aszMultiSrc.length(); n++ )
 	{
 	/*	@pEntity = null;
 
-		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", aszMultiSrc[u32] ) ) !is null )
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", aszMultiSrc[n] ) ) !is null )
 		{
 		}*/
 		
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", aszMultiSrc[u32] );
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", aszMultiSrc[n] );
 
 		if ( pEntity is null )
 			continue;
@@ -146,13 +177,13 @@ void MapStart()
 		pStored.insertLast( data );
 	}
 	
-	for ( uint u32 = 0; u32 < pStored.length(); u32++ )
+	for ( uint n = 0; n < pStored.length(); n++ )
 	{
 		@pEntity = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, false );
 		if ( pEntity is null )
 			continue;
 			
-		data = pStored[u32];
+		data = pStored[n];
 
 		pEntity.pev.targetname = data.targetname;
 		pEntity.pev.spawnflags = 1;
