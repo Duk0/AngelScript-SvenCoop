@@ -62,8 +62,9 @@ void MapActivate()
 
 		iCount++;
 	}
-	
-	g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " func_breakable ents.\n" );
+
+	if ( iCount > 0 )
+		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " func_breakable ents.\n" );
 
 	if ( g_nVersion > 521 )
 		return;
