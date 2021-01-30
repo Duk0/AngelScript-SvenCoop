@@ -1,6 +1,8 @@
 bool g_bFix511 = false; // non-functional killtarget for trigger_camera
 // 5.21 - Multisource used by non member DelayedUse.
 // 5.23 - Explosives only func_breakable with filled Targetname doesn't take damage from player rpg
+// 5.24 - Osprey (monster_osprey, monster_blkop_osprey) exploding crash
+//		- monster_chumtoad don't follow their owner and don't show monsterinfo
 
 uint g_nVersion;
 
@@ -14,6 +16,7 @@ void PluginInit()
 	switch ( g_nVersion )
 	{
 		case 511: g_bFix511 = true; break;
+		case 524: g_Hooks.RegisterHook( Hooks::Game::EntityCreated, @EntityCreated ); break;
 	}
 }
 
@@ -240,4 +243,111 @@ void MapStart()
 
 	if ( iCount > 0 )
 		g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed " + iCount + " monster_*_dead npcs.\n" );*/
+
+
+	if ( g_nVersion == 524 )
+	{
+		@pEntity = null;
+	
+		while( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_osprey" ) ) !is null )
+			OspreyFix( pEntity );
+		
+		@pEntity = null;
+		
+		while( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_blkop_osprey" ) ) !is null )
+			OspreyFix( pEntity );
+	}
+}
+
+HookReturnCode EntityCreated( CBaseEntity@ pEntity )
+{
+	if ( pEntity is null )
+		return HOOK_CONTINUE;
+
+	string szClassname = pEntity.GetClassname();
+	
+	if ( szClassname.Compare( "monster_chumtoad" ) == 0 )
+	{
+		g_Scheduler.SetTimeout( "ChumtoadFix", 0.1, EHandle( pEntity ) );
+		return HOOK_CONTINUE;
+	}
+
+//	if ( szClassname.CompareN( "monster_", 8 ) != 0 || !szClassname.EndsWith( "_osprey", String::CaseSensitive )
+	if ( szClassname.Compare( "monster_osprey" ) != 0 && szClassname.Compare( "monster_blkop_osprey" ) != 0 )
+		return HOOK_CONTINUE;
+
+	g_EngineFuncs.ServerPrint( "[SvenFixes] EntityCreated " + szClassname + "\n" );
+
+	OspreyFix( pEntity );
+
+	return HOOK_CONTINUE;
+}
+
+
+void ChumtoadFix( EHandle hEntity )
+{
+	if ( !hEntity )
+		return;
+
+	CBaseEntity@ pEntity = hEntity.GetEntity();
+
+	CBaseEntity@ pUser = g_EntityFuncs.Instance( pEntity.pev.iuser2 );
+
+	if ( pUser !is null && pUser.IsPlayer() && pEntity.Classify() == CLASS_PLAYER )
+	{
+		pEntity.pev.iuser2 = 0;
+		pEntity.pev.solid = SOLID_NOT_EXPLICIT;
+		
+		CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
+		
+		if ( pMonster !is null )
+			pMonster.StartPlayerFollowing( pUser, false );
+	}
+}
+
+
+void OspreyFix( CBaseEntity@ pEntity )
+{
+	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
+
+	if ( pMonster is null )
+		return;
+
+	int iEntIndex = pEntity.entindex();
+	string szTriggerTarget = pMonster.m_iszTriggerTarget;
+
+	if ( szTriggerTarget.IsEmpty() )
+	{
+		szTriggerTarget = "as_svenfix_osprey_ondestroy" + string( iEntIndex );
+		pMonster.m_iszTriggerTarget = string_t( szTriggerTarget );
+		pMonster.m_iTriggerCondition = 4;
+	}
+
+	if ( pMonster.m_iTriggerCondition != 4 )
+		return;
+
+	string szTargetName = pEntity.GetTargetname();
+
+	if ( szTargetName.IsEmpty() )
+	{
+		szTargetName = "as_svenfix_osprey_name" + string( iEntIndex );
+		pEntity.pev.targetname = string_t( szTargetName );
+	}
+
+	CBaseEntity@ pEnt = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, true );
+	if ( pEnt is null )
+		return;
+
+	pEnt.pev.targetname = string_t( szTriggerTarget );
+	pEnt.pev.spawnflags = 1;
+	
+	g_EntityFuncs.DispatchSpawn( pEnt.edict() );
+
+	CBaseDelay@ pDelay = cast<CBaseDelay@>( pEnt );
+	if ( pDelay is null )
+		return;
+		
+	pDelay.m_iszKillTarget = string_t( szTargetName );
+
+	g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed osprey " + szTargetName + ": " + iEntIndex + "\n" );
 }
