@@ -293,10 +293,13 @@ void ChumtoadFix( EHandle hEntity )
 
 	CBaseEntity@ pUser = g_EntityFuncs.Instance( pEntity.pev.iuser2 );
 
-	if ( pUser !is null && pUser.IsPlayer() && pEntity.Classify() == CLASS_PLAYER )
+	if ( pUser !is null && pUser.IsPlayer() )
 	{
 		pEntity.pev.iuser2 = 0;
 		pEntity.pev.solid = SOLID_NOT_EXPLICIT;
+
+		if ( pEntity.Classify() != pUser.Classify() )
+			pEntity.SetClassificationFromEntity( pUser );
 		
 		CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
 		
