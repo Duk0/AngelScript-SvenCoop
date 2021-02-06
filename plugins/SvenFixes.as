@@ -291,21 +291,26 @@ void ChumtoadFix( EHandle hEntity )
 
 	CBaseEntity@ pEntity = hEntity.GetEntity();
 
-	CBaseEntity@ pUser = g_EntityFuncs.Instance( pEntity.pev.iuser2 );
+	int iUser = pEntity.pev.iuser2;
+	
+	if ( iUser == 0 )
+		return;
 
-	if ( pUser !is null && pUser.IsPlayer() )
-	{
-		pEntity.pev.iuser2 = 0;
-		pEntity.pev.solid = SOLID_NOT_EXPLICIT;
+	CBaseEntity@ pUser = g_EntityFuncs.Instance( iUser );
 
-		if ( pEntity.Classify() != pUser.Classify() )
-			pEntity.SetClassificationFromEntity( pUser );
-		
-		CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
-		
-		if ( pMonster !is null )
-			pMonster.StartPlayerFollowing( pUser, false );
-	}
+	if ( pUser is null || !pUser.IsPlayer() )
+		return;
+
+	pEntity.pev.iuser2 = 0;
+	pEntity.pev.solid = SOLID_NOT_EXPLICIT;
+
+	if ( pEntity.Classify() != pUser.Classify() )
+		pEntity.SetClassificationFromEntity( pUser );
+	
+	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
+	
+	if ( pMonster !is null )
+		pMonster.StartPlayerFollowing( pUser, false );
 }
 
 
