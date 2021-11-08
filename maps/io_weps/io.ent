@@ -1,0 +1,22 @@
+"entity"
+{
+"targetname" "secretcounter"
+"m_iszScriptFunctionName" "SecretCounter"
+"m_iMode" "1"
+"classname" "trigger_script"
+}
+{
+"target" "secret_text_delay"
+"targetname" "secret_text"
+"delay" "0.01"
+"triggerstate" "2"
+"classname" "trigger_relay"
+}
+{
+"target" "end_m"
+"message" "Not all secret areas was found.\nWould you like exit this map?"
+"targetname" "start_exit_vote"
+"health" "51"
+"frags" "15"
+"classname" "trigger_vote"
+}
