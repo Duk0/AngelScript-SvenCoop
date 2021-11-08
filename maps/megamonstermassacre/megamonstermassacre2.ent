@@ -1,0 +1,53 @@
+"entity"
+{
+	"model" "*1"
+	"classname" "func_monsterclip"
+}
+"entity"
+{
+	"origin" "624 112 -80"
+	"angles" "0 0 0"
+	"classname" "weapon_handgrenade"
+}
+"entity"
+{
+	"origin" "624 64 -80"
+	"angles" "0 0 0"
+	"classname" "weapon_handgrenade"
+}
+"entity"
+{
+	"origin" "672 112 -80"
+	"angles" "0 0 0"
+	"classname" "item_battery"
+}
+"entity"
+{
+	"origin" "672 64 -80"
+	"angles" "0 0 0"
+	"classname" "item_battery"
+}
+"entity"
+{
+	"origin" "672 112 -80"
+	"angles" "0 0 0"
+	"classname" "item_battery"
+}
+"entity"
+{
+	"origin" "672 64 -80"
+	"angles" "0 0 0"
+	"classname" "item_battery"
+}
+"entity"
+{
+	"origin" "672 112 -80"
+	"angles" "0 0 0"
+	"classname" "item_battery"
+}
+"entity"
+{
+	"origin" "672 64 -80"
+	"angles" "0 0 0"
+	"classname" "item_battery"
+}
