@@ -1,0 +1,11 @@
+"entity"
+{
+	"origin" "544 1732 780"
+	"targetname" "end_door"
+	"scale" "0.22"
+	"renderamt" "255"
+	"rendermode" "5"
+	"model" "sprites/level_change.spr"
+	"framerate" "10.0"
+	"classname" "env_sprite"
+}
