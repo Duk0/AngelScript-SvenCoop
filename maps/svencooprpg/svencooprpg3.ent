@@ -1,0 +1,21 @@
+"entity"
+{
+	"origin" "0 0 0"
+	"vomit_sound" "0"
+	"targetname" "vomit"
+	"classname" "multi_manager"
+}
+"entity"
+{
+	"origin" "0 0 0"
+	"vomit_sound" "0"
+	"targetname" "vomitb"
+	"classname" "multi_manager"
+}
+"entity"
+{
+	"origin" "0 0 0"
+	"vomit_sound" "0"
+	"targetname" "vomitc"
+	"classname" "multi_manager"
+}
