@@ -12,7 +12,7 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Weapon::WeaponSecondaryAttack, @WeaponSecondaryAttack );
 
 	@g_pEnable = CCVar( "enable_fov", 1 );
-	@g_pFov = CCVar( "secondary_fov", 45 );
+	@g_pFov = CCVar( "secondary_fov", 40 ); // https://github.com/ValveSoftware/halflife/blob/c7240b965743a53a29491dd49320c88eecf6257b/dlls/python.cpp#L152
 }
 
 HookReturnCode PlayerPreThink( CBasePlayer@ pPlayer, uint& out uiFlags )

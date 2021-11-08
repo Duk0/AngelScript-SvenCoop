@@ -333,7 +333,7 @@ void checkVotes()
 	string szMap;
 	if ( g_pVoteCount[b] > 0 && g_pVoteCount[SELECTMAPS + 1] <= g_pVoteCount[b] )
 	{
-		g_Log.PrintF( g_szModuleName + "b: " + b + ", g_pNextName[b]: " + g_pNextName[b] + ", g_pVoteCount[b]: " + g_pVoteCount[b] + "\n" );
+	//	g_Log.PrintF( g_szModuleName + "b: " + b + ", g_pNextName[b]: " + g_pNextName[b] + ", g_pVoteCount[b]: " + g_pVoteCount[b] + "\n" );
 
 		if ( b > SELECTMAPS )
 			g_Log.PrintF( g_szModuleName + "ERROR! b > SELECTMAPS\n" );
@@ -821,8 +821,9 @@ void RockTheVote( CBasePlayer@ pPlayer )
 		g_bVoteFinished = false;
 		@g_pVoteNextMapFunction = g_Scheduler.SetTimeout( "voteNextmap", 15.0 );
 
-		for ( int i = 1; i <= g_Engine.maxClients; i++ )
-			g_pRocked[i] = false;
+		/*for ( int i = 1; i <= g_Engine.maxClients; i++ )
+			g_pRocked[i] = false;*/
+		g_pRocked = array<bool>( g_Engine.maxClients + 1, false );
 
 		g_iRocks = 0;
 

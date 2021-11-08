@@ -5,6 +5,7 @@ const Vector g_vecNVColor( 0, 255, 0 );
 const int g_iRadius = 40;
 const int g_iDecay = 1;
 const int g_iLife = 2;
+const int g_iAlpha = 64;
 
 void PluginInit()
 {
@@ -12,8 +13,8 @@ void PluginInit()
 	g_Module.ScriptInfo.SetContactInfo( "Nero @ Svencoop forums" );
   
 	g_Hooks.RegisterHook( Hooks::Player::PlayerKilled, @PlayerKilled );
-	g_Hooks.RegisterHook(Hooks::Player::ClientDisconnect, @ClientDisconnect);
-	g_Hooks.RegisterHook(Hooks::Player::ClientPutInServer, @ClientPutInServer);
+	g_Hooks.RegisterHook( Hooks::Player::ClientDisconnect, @ClientDisconnect );
+	g_Hooks.RegisterHook( Hooks::Player::ClientPutInServer, @ClientPutInServer );
 	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 }
 
@@ -26,8 +27,9 @@ void MapInit()
 
 void MapStart()
 {
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
-		g_bPlayerNV[iPlayer] = false;
+//	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
+//		g_bPlayerNV[iPlayer] = false;
+	g_bPlayerNV = array<bool>( g_Engine.maxClients + 1, false );
 
 	g_Scheduler.SetInterval( "nvThink", 0.02f );
 }
@@ -53,7 +55,7 @@ void ToggleNV( const CCommand@ args )
 		if ( pPlayer.FlashlightIsOn() )
 			pPlayer.FlashlightTurnOff();
 
-		g_PlayerFuncs.ScreenFade( pPlayer, g_vecNVColor, 0.01, 0.5, 128, FFADE_OUT | FFADE_STAYOUT);
+		g_PlayerFuncs.ScreenFade( pPlayer, g_vecNVColor, 0.01, 0.5, g_iAlpha, FFADE_OUT | FFADE_STAYOUT );
 		g_SoundSystem.EmitSoundDyn( pPlayer.edict(), CHAN_WEAPON, "player/hud_nightvision.wav", 1.0, ATTN_NORM, 0, PITCH_NORM );
 	}
 		
@@ -80,7 +82,7 @@ void nvMsg( CBasePlayer@ pPlayer )
 
 void removeNV( CBasePlayer@ pPlayer )
 {
-	g_PlayerFuncs.ScreenFade( pPlayer, g_vecNVColor, 0.01, 0.5, 128, FFADE_IN );
+	g_PlayerFuncs.ScreenFade( pPlayer, g_vecNVColor, 0.01, 0.5, g_iAlpha, FFADE_IN );
 	g_SoundSystem.EmitSoundDyn( pPlayer.edict(), CHAN_WEAPON, "player/hud_nightvision.wav", 0.8, ATTN_NORM, 0, PITCH_LOW );
 }
 

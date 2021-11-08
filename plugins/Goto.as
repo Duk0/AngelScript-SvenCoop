@@ -27,8 +27,9 @@ void MapStart()
 	if ( !g_dNoGoto.isEmpty() )
 		g_dNoGoto.deleteAll();
 
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
-		g_flWaitTime[iPlayer] = g_Engine.time;
+	/*for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
+		g_flWaitTime[iPlayer] = g_Engine.time;*/
+	g_flWaitTime = array<float>( g_Engine.maxClients + 1, g_Engine.time );
 }
 
 void GotoCallBack( CCVar@ cvar, const string& in szOldValue, float flOldValue )
@@ -169,9 +170,11 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHiden = false )
 		if ( pTarget is pPlayer )
 			continue;
 			
-		if ( szPartName == "@random" && pTarget.IsAlive() )
+		if ( szPartName == "@random" )
 		{
-			pRandom.insertLast( pTarget );
+			if ( pTarget.IsAlive() )
+				pRandom.insertLast( pTarget );
+
 			continue;
 		}
 
@@ -189,7 +192,7 @@ bool DoGoto( CBasePlayer@ pPlayer, string& in szPartName, bool bHiden = false )
 	{
 		int iRandom = Math.RandomLong( 0, iLen - 1 );
 		@pDestPlayer = pRandom[iRandom];
-		iCount = -1;
+		iCount = 1;
 	}
 
 	if ( iCount == 0 || pDestPlayer is null )
