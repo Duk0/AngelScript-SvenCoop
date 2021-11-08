@@ -1,0 +1,7 @@
+"entity"
+{
+"model" "*187"
+"map" "sc_swars_installation2"
+"keep_inventory" "1"
+"classname" "trigger_changelevel"
+}

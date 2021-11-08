@@ -1,0 +1,25 @@
+"entity"
+{
+"model" "*157"
+"map" "sc_swars_installation1"
+"keep_inventory" "1"
+"classname" "trigger_changelevel"
+}
+"entity"
+{
+"origin" "-227 2155 -768"
+"angles" "0 0 0"
+"classname" "ammo_blaster"
+}
+"entity"
+{
+"origin" "-227 2105 -768"
+"angles" "0 0 0"
+"classname" "ammo_blaster"
+}
+"entity"
+{
+"origin" "-56 2159 -608"
+"angles" "0 270 0"
+"classname" "ammo_blaster"
+}
