@@ -377,6 +377,10 @@ void InfoEntity( const CCommand@ args )
 	int iClassification = pEntity.Classify();
 	if ( iClassification != 0 )
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "INT Classification = " + iClassification + "\n" );
+		
+	string szClassificationName = pEntity.GetClassificationName();
+	if ( !szClassificationName.IsEmpty() )
+		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "SZ ClassificationName = " + szClassificationName + "\n" );
 	
 	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B is moving = " + ( pEntity.IsMoving() ? "Yes" : "No" ) + "\n" );
 	g_EngineFuncs.ClientPrintf( pPlayer, print_console, "B is machine = " + ( pEntity.IsMachine() ? "Yes" : "No" ) + "\n" );

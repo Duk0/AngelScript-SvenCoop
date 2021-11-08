@@ -17,6 +17,7 @@ void PluginInit()
 	{
 		case 511: g_bFix511 = true; break;
 		case 524: g_Hooks.RegisterHook( Hooks::Game::EntityCreated, @EntityCreated ); break;
+		case 525: g_Hooks.RegisterHook( Hooks::Game::EntityCreated, @EntityCreated ); break;
 	}
 }
 
@@ -247,6 +248,37 @@ void MapStart()
 
 	if ( g_nVersion == 524 )
 	{
+		if ( g_Engine.mapname == "hl_c01_a2" )
+		{
+			@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "sample_cart2_lift" );
+
+			if ( pEntity !is null )
+				g_EntityFuncs.Remove( pEntity );
+
+			dictionary pDictionary = {
+				{ 'model', '*25' },
+				{ 'fireonclosed_triggerstate', '2' },
+				{ 'fireonopened_triggerstate', '2' },
+				{ 'fireonclosing_triggerstate', '2' },
+				{ 'fireonopening_triggerstate', '2' },
+				{ 'health', '1' },
+				{ 'explosion', '1' },
+				{ 'weapon', '1' },
+				{ 'm_iObeyTriggerMode', '2' },
+				{ 'dmg', '50' },
+				{ 'stopsnd', '2' },
+				{ 'movesnd', '1' },
+				{ 'renderamt', '255' },
+				{ 'angles', '-90 0 0' },
+				{ 'rendercolor', '255 255 255' },
+				{ 'wait', '-1' },
+				{ 'speed', '30' },
+				{ 'targetname', 'sample_cart2_lift' },
+				{ 'spawnflags', '32' },
+				{ 'lip', '15' } };
+			g_EntityFuncs.CreateEntity( "func_door", pDictionary, true );
+		}
+
 		@pEntity = null;
 	
 		while( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_osprey" ) ) !is null )
@@ -271,15 +303,18 @@ HookReturnCode EntityCreated( CBaseEntity@ pEntity )
 		g_Scheduler.SetTimeout( "ChumtoadFix", 0.1, EHandle( pEntity ) );
 		return HOOK_CONTINUE;
 	}
+/*
+	if ( g_nVersion == 524 )
+	{
+	//	if ( szClassname.CompareN( "monster_", 8 ) != 0 || !szClassname.EndsWith( "_osprey", String::CaseSensitive )
+		if ( szClassname.Compare( "monster_osprey" ) != 0 && szClassname.Compare( "monster_blkop_osprey" ) != 0 )
+			return HOOK_CONTINUE;
 
-//	if ( szClassname.CompareN( "monster_", 8 ) != 0 || !szClassname.EndsWith( "_osprey", String::CaseSensitive )
-	if ( szClassname.Compare( "monster_osprey" ) != 0 && szClassname.Compare( "monster_blkop_osprey" ) != 0 )
-		return HOOK_CONTINUE;
+		g_EngineFuncs.ServerPrint( "[SvenFixes] EntityCreated " + szClassname + "\n" );
 
-	g_EngineFuncs.ServerPrint( "[SvenFixes] EntityCreated " + szClassname + "\n" );
-
-	OspreyFix( pEntity );
-
+		OspreyFix( pEntity );
+	}
+*/
 	return HOOK_CONTINUE;
 }
 
@@ -293,7 +328,7 @@ void ChumtoadFix( EHandle hEntity )
 
 	int iUser = pEntity.pev.iuser2;
 	
-	if ( iUser == 0 )
+	if ( iUser <= 0 )
 		return;
 
 	CBaseEntity@ pUser = g_EntityFuncs.Instance( iUser );
@@ -303,14 +338,14 @@ void ChumtoadFix( EHandle hEntity )
 
 	pEntity.pev.iuser2 = 0;
 	pEntity.pev.solid = SOLID_NOT_EXPLICIT;
-
+/*
 	if ( pEntity.Classify() != pUser.Classify() )
 		pEntity.SetClassificationFromEntity( pUser );
-	
-	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
+*/	
+/*	CBaseMonster@ pMonster = cast<CBaseMonster@>( pEntity );
 	
 	if ( pMonster !is null )
-		pMonster.StartPlayerFollowing( pUser, false );
+		pMonster.StartPlayerFollowing( pUser, false );*/
 }
 
 
@@ -357,5 +392,5 @@ void OspreyFix( CBaseEntity@ pEntity )
 		
 	pDelay.m_iszKillTarget = string_t( szTargetName );
 
-	g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed osprey " + szTargetName + ": " + iEntIndex + "\n" );
+	g_EngineFuncs.ServerPrint( "[SvenFixes] Fixed osprey " + szTargetName + "\n" );
 }
