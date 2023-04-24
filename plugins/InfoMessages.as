@@ -9,24 +9,27 @@
 const float X_POS = -1.0;
 const float Y_POS = 0.20;
 const float HOLD_TIME = 12.0;
+const float MIN_FEQ_TIME = 180.0;
 const string g_szIMessageIniFile = "scripts/plugins/Configs/imessage.ini";
 
 
 class MsgData
 {
 	string msg;
-	int r, g, b;
+	uint8 r, g, b;
+	float holdtime;
 	bool IsEmpty() { return msg.IsEmpty(); }
-	void Check() { if ( r == 0 && g == 0 && b == 0 ) r = g = b = 100; }
-	void Clear() { msg.Clear(); r = g = b = 100; }
+	bool IsColorSet() { return ( r != 0 || g != 0 || b != 0 ); }
+	void Check() { if ( r == 0 && g == 0 && b == 0 ) r = g = b = 100; if ( holdtime == 0.0 ) holdtime = HOLD_TIME; }
+	void Clear() { msg.Clear(); r = g = b = 100; holdtime = HOLD_TIME; }
 }
 
 array<MsgData> g_pMsgValues;
 int g_iMessagesNum;
 int g_iCurrent;
-float g_flFrequency;
+float g_flFrequency = 0.0;
 string g_szModuleName;
-//const Cvar@ g_pvHostname;
+//const Cvar@ g_pCvarHostname;
 HUDTextParams g_hudTxtParam;
 
 void PluginInit()
@@ -37,18 +40,12 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 
 	g_szModuleName = "[" + g_Module.GetModuleName() + "] ";
-	//@g_pvHostname = g_EngineFuncs.CVarGetPointer( "hostname" );
+	//@g_pCvarHostname = g_EngineFuncs.CVarGetPointer( "hostname" );
 	
 	SetMessage();
 
-	if ( g_flFrequency < 180.0 )
-		 g_flFrequency = 180.0; // do not spam messages
-
-/*	uint uiMsgLen = g_Messages.length();
-	if ( g_Values.length() == uiMsgLen )
-		g_iMessagesNum = uiMsgLen;
-	else
-		g_Game.AlertMessage( at_warning, "bad format in %1 file\n", g_szIMessageIniFile );*/
+	if ( g_flFrequency < MIN_FEQ_TIME )
+		 g_flFrequency = MIN_FEQ_TIME; // do not spam messages
 		
 	g_iMessagesNum = g_pMsgValues.length();
 	g_EngineFuncs.ServerPrint( g_szModuleName + "Loaded " + g_iMessagesNum + " messages from " + g_szIMessageIniFile + " file\n" );
@@ -105,11 +102,12 @@ void InfoMessage()
 	g_hudTxtParam.r1 = data.r;
 	g_hudTxtParam.g1 = data.g;
 	g_hudTxtParam.b1 = data.b;
+	g_hudTxtParam.holdTime = data.holdtime;
 	
 	g_PlayerFuncs.HudMessageAll( g_hudTxtParam, szMessage );
 	
 	g_PlayerFuncs.ClientPrintAll( HUD_PRINTCONSOLE, g_szModuleName + szMessage + "\n" );
-	++g_iCurrent;
+	g_iCurrent++;
 
 	//g_EngineFuncs.ServerPrint( g_szModuleName + szMessage + "\n" );
 }
@@ -122,14 +120,13 @@ void SetMessage()
 	{
 		string line;
 		MsgData data;
+		array<string>@ pValues;
+		bool bHasColor = false;
+
 		while ( !pFile.EOFReached() )
 		{
 			pFile.ReadLine( line );
 			line.Trim();
-			
-/*			line.Trim( '\r' ); // linux fix
-			if ( line == '\r' )
-				continue;*/
 
 			if ( line.IsEmpty() )
 				continue;
@@ -137,7 +134,8 @@ void SetMessage()
 			if ( line[0] == '/' && line[1] == '/' )
 				continue;
 			
-			array<string>@ pValues = line.Split( '=' );
+			@pValues = line.Split( '=' );
+
 			if ( pValues.length() != 2 ) 
 				continue;
 
@@ -146,31 +144,49 @@ void SetMessage()
 
 			if ( pValues[0].Length() == 0 || pValues[1].Length() == 0 )
 				continue;
+			
+			//g_EngineFuncs.ServerPrint( g_szModuleName + pValues[0] + " = " + pValues[1] + "\n" );
+
+			if ( g_flFrequency < MIN_FEQ_TIME && pValues[0] == "frequency" )
+			{
+				g_flFrequency = atof( pValues[1] );
+				continue;
+			}
 
 			if ( pValues[0] == "message" )
 			{
 				pValues[1].Replace( "^n", "\n" );
 				data.msg = pValues[1];
+				continue;
+			}
+
+			if ( pValues[0] == "holdtime" )
+			{
+				data.holdtime = atof( pValues[1] );
+				continue;
+			}
+			else
+			{
+				if ( data.holdtime == 0.0 )
+					data.holdtime = HOLD_TIME;
 			}
 
 			if ( pValues[0] == "color" )
 			{
-				data.r = atoi( pValues[1].SubString( 0, 3 ) );
-				data.g = atoi( pValues[1].SubString( 3, 3 ) );
-				data.b = atoi( pValues[1].SubString( 6, 3 ) );
-				
-				if ( !data.IsEmpty() )
-				{
-					data.Check();
-					g_pMsgValues.insertLast( data );
-					data.Clear();
-				}
-				else
-					g_Game.AlertMessage( at_warning, "bad format in %1 file\n", g_szIMessageIniFile );
+				data.r = atoui( pValues[1].SubString( 0, 3 ) );
+				data.g = atoui( pValues[1].SubString( 3, 3 ) );
+				data.b = atoui( pValues[1].SubString( 6, 3 ) );
 			}
-			
-			if ( pValues[0] == "frequency" )
-				g_flFrequency = atof( pValues[1] );
+
+			if ( !data.IsColorSet() || data.IsEmpty() )
+			{
+				g_EngineFuncs.ServerPrint( g_szModuleName + "bad format in " + g_szIMessageIniFile + " file\n" );
+				continue;
+			}
+
+			data.Check();
+			g_pMsgValues.insertLast( data );
+			data.Clear();
 		}
 		
 		pFile.Close();

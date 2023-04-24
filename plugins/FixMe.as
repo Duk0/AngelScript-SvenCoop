@@ -2,7 +2,7 @@ const string g_szIssuesPath = "scripts/plugins/store/issues/";
 array<string> g_pEntities;
 int g_iIssues = 0;
 HUDTextParams g_hudTxtParam;
-array<CScheduledFunction@> g_pDelayedMsgFunction( g_Engine.maxClients + 1, null );
+//array<CScheduledFunction@> g_pDelayedMsgFunction( g_Engine.maxClients + 1, null );
 //array<string> g_pShootModelList = { "models/woodgibs.mdl", "models/metalgibs.mdl", "models/cindergibs.mdl" };
 
 void PluginInit()

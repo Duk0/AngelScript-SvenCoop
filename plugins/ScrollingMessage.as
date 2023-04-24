@@ -124,14 +124,12 @@ void setScrollMsg()
 	if ( pFile !is null && pFile.IsOpen() )
 	{
 		string line;
+		array<string>@ pValues;
+
 		while ( !pFile.EOFReached() )
 		{
 			pFile.ReadLine( line );
 			line.Trim();
-			
-/*			line.Trim( '\r' ); // linux fix
-			if ( line == '\r' )
-				continue;*/
 
 			if ( line.IsEmpty() )
 				continue;
@@ -139,7 +137,8 @@ void setScrollMsg()
 			if ( line[0] == '/' && line[1] == '/' )
 				continue;
 			
-			array<string>@ pValues = line.Split( '=' );
+			@pValues = line.Split( '=' );
+
 			if ( pValues.length() != 2 ) 
 				continue;
 
