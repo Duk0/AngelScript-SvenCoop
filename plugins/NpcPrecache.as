@@ -79,7 +79,11 @@ void PluginInit()
 void MapInit()
 {
 	for ( uint i = 0; i < g_pEnts.length(); i++ )
-		g_Game.PrecacheOther( g_pEnts[i] ); // toto precachne entitu aj s modelom
+	{
+		// toto precachne entitu aj s modelom
+		g_Game.PrecacheMonster( g_pEnts[i], false ); 
+		g_Game.PrecacheMonster( g_pEnts[i], true  );
+	}
 
 	// Modely, pridaj len iba ak treba
 /*	g_Game.PrecacheModel( "models/otis.mdl" );
