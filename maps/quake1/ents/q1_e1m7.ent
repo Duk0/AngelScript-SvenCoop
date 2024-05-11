@@ -1,0 +1,36 @@
+"entity"
+{
+"targetname" "tmsg"
+"m_iszScriptFunctionName" "ShowStats"
+"m_iMode" "1"
+"classname" "trigger_script"
+}
+{
+"targetname" "mcm"
+"m_iszScriptFunctionName" "MakeStats"
+"m_iMode" "1"
+"classname" "trigger_script"
+}
+{
+"target" "tmsg_delay"
+"targetname" "tmsg"
+"delay" "20"
+"triggerstate" "2"
+"classname" "trigger_relay"
+}
+//{
+//"origin" "1760 128 24"
+//"classname" "monster_qzombie"
+//}
+//{
+//"origin" "1824 128 24"
+//"classname" "monster_qzombie"
+//}
+//{
+//"origin" "1568 128 24"
+//"classname" "monster_qzombie"
+//}
+//{
+//"origin" "1632 128 24"
+//"classname" "monster_qzombie"
+//}

@@ -1,0 +1,40 @@
+"entity"
+//{
+//"targetname" "t53"
+//"target" ""
+//"copypointer" "t54"
+//"spawnflags" "1012"
+//"classname" "trigger_setorigin"
+//}
+{
+"origin" "-224 424 512"
+"angles" "25 315 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "1048 -744 488"
+"angles" "35 45 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "1104 424 528"
+"angles" "30 270 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "1240 984 416"
+"angles" "35 45 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}

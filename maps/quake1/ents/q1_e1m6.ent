@@ -1,0 +1,9 @@
+"entity"
+{
+"origin" "48 912 248"
+"angles" "20 315 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}

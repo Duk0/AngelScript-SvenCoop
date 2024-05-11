@@ -1,0 +1,70 @@
+"entity"
+{
+"origin" "864 992 -168"
+"speed" "600"
+"classname" "misc_qfireball"
+}
+{
+"origin" "1088 2208 -24"
+"speed" "600"
+"classname" "misc_qfireball"
+}
+{
+"origin" "1072 2432 -24"
+"speed" "600"
+"classname" "misc_qfireball"
+}
+{
+"origin" "1004 1048 124"
+"angles" "0 180 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}
+{
+"origin" "1004 928 72"
+"angles" "0 180 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}
+{
+"origin" "708 992 52"
+"angles" "0 0 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}
+{
+"origin" "708 1116 120"
+"angles" "0 0 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}
+{
+"origin" "1776 1608 -228"
+"angles" "0 90 0"
+"spawnflags" "1"
+"classname"	"monster_qzombie"
+}
+{
+"origin" "1776 1848 -228"
+"angles" "0 270 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}
+{
+"origin" "-336 1768 -264"
+"angles" "0 0 0"
+"spawnflags" "1"
+"classname"	"monster_qzombie"
+}
+{
+"origin" "120 1808 -264"
+"angles" "0 180 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}
+{
+"origin" "-96 1608 -264"
+"angles" "0 90 0"
+"spawnflags" "1"
+"classname" "monster_qzombie"
+}

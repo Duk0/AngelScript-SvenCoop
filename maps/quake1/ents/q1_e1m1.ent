@@ -1,0 +1,37 @@
+"entity"
+{
+"origin" "712 2040 -408"
+"classname" "item_qsuit"
+}
+{
+"origin" "-112 704 56"
+"angles" "35 45 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "-208 2736 192"
+"angles" "45 225 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "240 2664 104"
+"angles" "62 90 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "1376 1936 64"
+"angles" "45 135 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}

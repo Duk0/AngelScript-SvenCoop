@@ -1,0 +1,40 @@
+"entity"
+{
+"target" "t5_door"
+"targetname" "t5"
+"triggerstate" "2"
+"spawnflags" "1"
+"classname" "trigger_relay"
+}
+{
+"origin" "-544 24 176"
+"angles" "45 225 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "904 -216 56"
+"angles" "35 315 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "1112 288 680"
+"angles" "25 45 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
+{
+"origin" "-1448 -744 64"
+"angles" "25 45 0"
+"targetname" "q1_camera"
+"spawnflags" "24"
+"wait" "30"
+"classname" "trigger_camera"
+}
