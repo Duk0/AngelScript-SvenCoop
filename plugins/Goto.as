@@ -123,7 +123,7 @@ HookReturnCode ClientDisconnect( CBasePlayer@ pPlayer )
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 

@@ -46,7 +46,7 @@ void MapStart()
 	@g_pCheckPlayersFunction = g_Scheduler.SetTimeout( "CheckPlayers", 25 );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 

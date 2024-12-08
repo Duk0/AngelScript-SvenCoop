@@ -60,7 +60,7 @@ CCVar@ g_pCVarMaxHooks, g_pCVarMapStartDelay;
 array<bool> g_bHooked( g_Engine.maxClients + 1, false );
 array<bool> g_bCanThrowHook( g_Engine.maxClients + 1, true );
 bool g_bMapStarted = true;
-bool g_bWorkaroundFollow = true; // for test change to false (recomended true)
+bool g_bWorkaroundFollow = true; // for testing change to false (recomended true)
 
 array<int> g_iHooksUsed( g_Engine.maxClients + 1, 0 ); // Used with .hookmax
 array<bool> g_bHookAllowed( g_Engine.maxClients + 1, false ); // Used with .hookadminonly
@@ -133,7 +133,7 @@ HookReturnCode PlayerSpawn( CBasePlayer@ pPlayer )
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 	
@@ -760,8 +760,11 @@ class script_hook : ScriptBaseEntity
 				//@self.pev.owner = @pOther.edict();
 				//self.pev.velocity = pOther.pev.velocity;
 			
-				self.pev.movetype = MOVETYPE_FOLLOW;
+				self.pev.skin = pOther.entindex();
+			//	self.pev.body = pOther.entindex();
 				@self.pev.aiment = @pOther.edict();
+			//	@self.pev.aiment = pOther.edict();
+				self.pev.movetype = MOVETYPE_FOLLOW;
 			}
 			else
 			{

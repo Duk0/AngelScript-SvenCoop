@@ -39,16 +39,19 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+/*	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 	{
 		if ( !g_fMoveLivingPlayers[iPlayer] )
 			g_fMoveLivingPlayers[iPlayer] = true;
 
 		if ( !g_fRespawnDeadPlayers[iPlayer] )
 			g_fRespawnDeadPlayers[iPlayer] = true;
-	}
+	}*/
+
+	g_fMoveLivingPlayers = array<bool>( g_Engine.maxClients + 1, true );
+	g_fRespawnDeadPlayers = array<bool>( g_Engine.maxClients + 1, true );
 	
 	g_Scheduler.ClearTimerList();
 	
@@ -154,9 +157,11 @@ final class RespawnMenu
 				}
 				else
 				{
-					for ( int iClient = 1; iClient <= g_Engine.maxClients; ++iClient )
+					CBasePlayer@ pTarget;
+				
+					for ( int iClient = 1; iClient <= g_Engine.maxClients; iClient++ )
 					{
-						CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iClient );
+						@pTarget = g_PlayerFuncs.FindPlayerByIndex( iClient );
 					
 						if ( pTarget is null || !pTarget.IsConnected() )
 							continue;
@@ -222,9 +227,11 @@ void cmdRespawnMenu( const CCommand@ args )
 
 void ShowActivity( CBasePlayer@ pPlayer, const string& in szMessage )
 {
-	for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+	CBasePlayer@ pTarget;
+
+	for ( int iIndex = 1; iIndex <= g_Engine.maxClients; iIndex++ )
 	{
-		CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
+		@pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 		
 		if ( pTarget is null || !pTarget.IsConnected() )
 			continue;

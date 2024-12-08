@@ -66,7 +66,7 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 
@@ -196,9 +196,9 @@ string setTimeVoice( int flags, int tmlf )
 
 int findDispFormat( int iTime )
 {
-	// it is important to check i<length() BEFORE g_piTimeSet[i][0] to prevent out of bound error
+	// it is important to check i<length() BEFORE g_pTimeSet[i][0] to prevent out of bound error
 	const uint uiLen = g_pTimeSet.length();
-	for ( uint i = 0; i < uiLen && g_pTimeSet[i][0] > 0; ++i )
+	for ( uint i = 0; i < uiLen && g_pTimeSet[i][0] > 0; i++ )
 	{
 		if ( ( g_pTimeSet[i][1] & TD_SHOW_SPEAK_VALUES_BELOW ) != 0 )
 		{
@@ -233,14 +233,13 @@ void setDisplaying()
 	if ( pFile !is null && pFile.IsOpen() )
 	{
 		string line;
+		array<string>@ pValues;
+		array<int> vals( 2 );
+
 		while ( !pFile.EOFReached() )
 		{
 			pFile.ReadLine( line );
 			line.Trim();
-			
-/*			line.Trim( '\r' ); // linux fix
-			if ( line == '\r' )
-				continue;*/
 
 			if ( line.IsEmpty() )
 				continue;
@@ -248,17 +247,17 @@ void setDisplaying()
 			if ( line[0] == '/' && line[1] == '/' )
 				continue;
 			
-			array<string>@ pValues = line.Split( ' ' );
-			if( pValues.length() != 2 ) 
+			@pValues = line.Split( ' ' );
+
+			if ( pValues.length() != 2 ) 
 				continue;
 
 			pValues[0].Trim();
 			pValues[1].Trim();
 
-			if( pValues[0].Length() == 0 || pValues[1].Length() == 0 )
+			if ( pValues[0].Length() == 0 || pValues[1].Length() == 0 )
 				continue;
 
-			array<int> vals( 2 );
 			vals[0] = atoi( pValues[1] );
 			vals[1] = UTIL_ReadFlags( pValues[0] );
 			g_pTimeSet.insertLast( vals );

@@ -40,9 +40,11 @@ void MapStart()
 CClientCommand g_cancelvotemap( "cancelvotemap", "- cancels map vote", @cmdCancelVoteMap );
 //CClientCommand g_votemap( "mapvote", "- map vote", @cmdVoteMap );
 
-HookReturnCode MapChange()
+CConCommand votemapsreload( "votemapsreload", "Reload vote maps file", @ReloadMaps );
+
+HookReturnCode MapChange( const string& in szNextMap )
 {
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 	{
 		if ( g_VoteMapMenu[iPlayer] !is null )
 			@g_VoteMapMenu[iPlayer] = null;
@@ -167,7 +169,7 @@ void displayVoteMapMenu( CBasePlayer@ pPlayer )
 	@g_VoteMapMenu[iPlayer] = CTextMenu( @actionMapsMenu );
 	g_VoteMapMenu[iPlayer].SetTitle( "Votemap Menu " );
 
-	for ( int i = 0; i < g_iMapNums; ++i )
+	for ( int i = 0; i < g_iMapNums; i++ )
 		g_VoteMapMenu[iPlayer].AddItem( g_pMapVoteList[i] );
 
 	g_VoteMapMenu[iPlayer].Register();
@@ -342,8 +344,18 @@ void load_settings( string& in filename )
 	g_EngineFuncs.ServerPrint( "VoteMap loaded " + g_iMapNums + " maps\n" );
 }
 
+void ReloadMaps( const CCommand@ args )
+{
+	if ( g_pMapVoteList.length() > 0 )
+		g_pMapVoteList.resize( 0 );
+	
+	if ( g_iMapNums > 0 )
+		g_iMapNums = 0;
+	
+	load_settings( g_szMapsFile );
+}
+
 bool IsPlayerAdmin( CBasePlayer@ pPlayer )
 {
 	return g_PlayerFuncs.AdminLevel( pPlayer ) >= ADMIN_YES;
 }
-

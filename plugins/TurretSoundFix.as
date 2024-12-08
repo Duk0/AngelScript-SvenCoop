@@ -8,7 +8,7 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 

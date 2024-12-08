@@ -46,7 +46,7 @@ void PluginInit()
 	g_hudTxtParam.channel = 6;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {	
 	g_Scheduler.ClearTimerList();
 

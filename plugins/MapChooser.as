@@ -233,7 +233,7 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	if ( g_VoteMenu !is null )
 		@g_VoteMenu = null;

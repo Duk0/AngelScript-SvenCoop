@@ -25,7 +25,7 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	// set all menus to null. Apparently this fixes crashes for some people:
 	// http://forums.svencoop.com/showthread.php/43310-Need-help-with-text-menu#post515087
@@ -34,11 +34,15 @@ HookReturnCode MapChange()
 		if ( g_TeleMenu[iPlayer] !is null )
 			@g_TeleMenu[iPlayer] = null;
 
-		g_bMenuOption[iPlayer] = false;
-		g_vecMenuOrigin[iPlayer] = g_vecZero;
-		g_vecMenuVAngle[iPlayer] = g_vecZero;
+	//	g_bMenuOption[iPlayer] = false;
+	//	g_vecMenuOrigin[iPlayer] = g_vecZero;
+	//	g_vecMenuVAngle[iPlayer] = g_vecZero;
 		//SaveNoDuckingState( iPlayer );
 	}
+	g_bMenuOption = array<bool>( g_Engine.maxClients + 1, false );
+	g_vecMenuOrigin = array<Vector>( g_Engine.maxClients + 1, g_vecZero );
+	g_vecMenuVAngle = array<Vector>( g_Engine.maxClients + 1, g_vecZero );
+//	g_TeleMenu = array<CTextMenu@>( g_Engine.maxClients + 1, null );
 	
 	g_iDuckingStateSaved = 0;
 	

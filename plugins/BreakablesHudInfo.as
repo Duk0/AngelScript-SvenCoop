@@ -62,7 +62,7 @@ void PluginInit()
 		g_Scheduler.SetInterval( "HUDInfoThink", 0.3 );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 	

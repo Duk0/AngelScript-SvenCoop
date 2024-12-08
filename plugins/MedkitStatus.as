@@ -67,15 +67,16 @@ void MapStart()
 {
 	g_iAmmoIndex = g_PlayerFuncs.GetAmmoIndex( "health" );
 
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
-		g_bToggleStatus[iPlayer] = false;
+/*	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
+		g_bToggleStatus[iPlayer] = false;*/
+	g_bToggleStatus = array<bool>( g_Engine.maxClients + 1, false );
 
 	g_Scheduler.SetInterval( "MedKitStatusThink", 1 );
 
 	g_Scheduler.SetTimeout( "DeleteDictOnEmtpyServer", 180.5 );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 
@@ -167,14 +168,22 @@ HookReturnCode PlayerKilled( CBasePlayer@ pPlayer, CBaseEntity@ pAttacker, int i
 
 void MedKitStatusThink()
 {
+	if ( g_dMedkitStatus.isEmpty() )
+		return;
+
+	CBasePlayer@ pPlayer;
 	array<CBasePlayer@> pPlayersList;
+	int iAmmo;
 	string szStatus;
 
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 	{
-		CBasePlayer@ pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
+		@pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
 
 		if ( pPlayer is null || !pPlayer.IsConnected() )
+			continue;
+
+		if ( !g_bToggleStatus[iPlayer] )
 			continue;
 
 		if ( pPlayer.HasNamedPlayerItem( "weapon_medkit" ) is null )
@@ -182,7 +191,7 @@ void MedKitStatusThink()
 
 		if ( pPlayer.IsAlive() )
 		{
-			int iAmmo = pPlayer.AmmoInventory( g_iAmmoIndex );
+			iAmmo = pPlayer.AmmoInventory( g_iAmmoIndex );
 			szStatus += string( pPlayer.pev.netname ) + " has " + iAmmo + " medkit points\n";
 		}
 		else
@@ -193,9 +202,6 @@ void MedKitStatusThink()
 
 	//	if ( !IsPlayerAdmin( pPlayer ) )
 	//		continue;
-
-		if ( !g_bToggleStatus[iPlayer] )
-			continue;
 	
 		pPlayersList.insertLast( pPlayer );
 	}

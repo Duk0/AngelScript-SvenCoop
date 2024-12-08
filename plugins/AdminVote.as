@@ -61,7 +61,7 @@ HookReturnCode ClientConnected( edict_t@ pEdict, const string& in szPlayerName, 
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	if ( g_VoteMenu !is null )
 		@g_VoteMenu = null;

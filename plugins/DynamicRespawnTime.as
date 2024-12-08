@@ -22,7 +22,7 @@ void MapStart()
 		g_Scheduler.SetInterval( "DynamicRespawnDelay", 10 );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 

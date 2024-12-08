@@ -14,7 +14,7 @@ void PluginInit()
 	g_Hooks.RegisterHook( Hooks::Game::MapChange, @MapChange );
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 
@@ -47,6 +47,7 @@ void LoadLastMap()
 		return;
 
 	string line, szMap;
+	array<string>@ pValues;
 	while ( !pFile.EOFReached() )
 	{
 		pFile.ReadLine( line );
@@ -55,10 +56,9 @@ void LoadLastMap()
 		if ( line.IsEmpty() )
 			continue;
 
-		array<string>@ pValues = line.Split( ':' );
+		@pValues = line.Split( ':' );
 
-		uint uiNum = pValues.length();
-		if ( uiNum != 2 )
+		if ( pValues.length() != 2 )
 			continue;
 
 		pValues[0].Trim();

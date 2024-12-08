@@ -28,11 +28,11 @@ void PluginInit()
 CClientCommand cvarmenu( "cvarmenu", "- displays cvars menu", @CmdCvarMenu );
 CClientCommand speechmenu( "speechmenu", "- displays speech menu", @CmdSpeechMenu );
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	// set all menus to null. Apparently this fixes crashes for some people:
 	// http://forums.svencoop.com/showthread.php/43310-Need-help-with-text-menu#post515087
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 	{
 		@g_CmdMenu[iPlayer] = null;
 		@g_SubMenu[iPlayer] = null;
@@ -136,7 +136,7 @@ void DisplaySpeechMenu( CBasePlayer@ pPlayer, const int iPage = 0 )
 	SpeechArrayData speechdata;
 	SpeechMenuData menudata;
 
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		speechdata = g_pSpeechName[uiIndex];
 
@@ -211,7 +211,7 @@ void actionCvarMenu( CTextMenu@ menu, CBasePlayer@ pPlayer, int iSlot, const CTe
 		@g_SubMenu[iPlayer] = CTextMenu( @actionSubMenu );
 		g_SubMenu[iPlayer].SetTitle( data.cvar );
 
-		for ( int i = 0; i < len; ++i )
+		for ( int i = 0; i < len; i++ )
 			g_SubMenu[iPlayer].AddItem( data.vals[i] );
 		
 		g_SubMenu[iPlayer].AddItem( "Back", any( data.page ) );
@@ -302,7 +302,7 @@ void DisplayCvarMenu( CBasePlayer@ pPlayer, const int iPage = 0 )
 	CvarMenuData menudata;
 	string szCurrentVal;
 
-	for ( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		cvardata = g_pCvarName[uiIndex];
 
@@ -358,14 +358,13 @@ void loadSpeechSettings()
 	{
 		string line;
 		SpeechArrayData data;
+		array<string>@ pValues;
+		uint uiNum;
+
 		while ( !pFile.EOFReached() )
 		{
 			pFile.ReadLine( line );
 			line.Trim();
-
-/*			line.Trim( '\r' );			
-			if ( line == '\r' )
-				continue;*/
 
 			if ( line.IsEmpty() )
 				continue;
@@ -378,12 +377,13 @@ void loadSpeechSettings()
 			
 			line.Replace( "	", "" );
 
-			array<string>@ pValues = line.Split( ':' );
-			uint uiNum = pValues.length();
+			@pValues = line.Split( ':' );
+			uiNum = pValues.length();
+
 			if ( uiNum < 2 )
 				continue;
 
-			for ( uint uiIndex = 0; uiIndex < uiNum; ++uiIndex )
+			for ( uint uiIndex = 0; uiIndex < uiNum; uiIndex++ )
 				pValues[uiIndex].Trim();
 			
 			data.name = pValues[0];
@@ -417,14 +417,14 @@ void loadCvarSettings()
 	{
 		string line;
 		CvarArrayData data;
+		array<string>@ pValues;
+		uint uiNum;
+		string szCvarName;
+
 		while ( !pFile.EOFReached() )
 		{
 			pFile.ReadLine( line );
 			line.Trim();
-
-/*			line.Trim( '\r' );
-			if ( line == '\r' )
-				continue;*/
 
 			if ( line.IsEmpty() )
 				continue;
@@ -437,16 +437,18 @@ void loadCvarSettings()
 			
 			line.Replace( "	", "" );
 
-			array<string>@ pValues = line.Split( ':' );
-			uint uiNum = pValues.length();
+			@pValues = line.Split( ':' );
+			uiNum = pValues.length();
+
 			if ( uiNum < 3 )
 				continue;
 
-			for ( uint uiIndex = 0; uiIndex < uiNum; ++uiIndex )
+			for ( uint uiIndex = 0; uiIndex < uiNum; uiIndex++ )
 				pValues[uiIndex].Trim();
 
-			string szCvarName = pValues[0];
+			szCvarName = pValues[0];
 			const Cvar@ pCvar = g_EngineFuncs.CVarGetPointer( szCvarName );
+
 			if ( pCvar is null )
 				continue;
 
@@ -475,12 +477,12 @@ void loadCvarSettings()
 	uint uiCount = g_pCvarName.length();
 	g_EngineFuncs.ServerPrint( "CommandsMenu loaded " + uiCount + " cvars\n" );
 
-/*	for( uint uiIndex = 0; uiIndex < uiCount; ++uiIndex )
+/*	for ( uint uiIndex = 0; uiIndex < uiCount; uiIndex++ )
 	{
 		const array<string>@ vals = g_cvarCmd[uiIndex];
 		const uint valsLen = vals.length();
 		string szText;
-		for ( uint ui = 0; ui < valsLen - 1; ++ui )
+		for ( uint ui = 0; ui < valsLen - 1; ui++ )
 			szText += vals[ui] + " ";
 
 		szText += vals[valsLen - 1];
@@ -504,9 +506,11 @@ void updateScoreboardTimeLeft()
 
 void ShowActivityToAdmins( CBasePlayer@ pPlayer, const string& in szMessage )
 {
-	for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+	CBasePlayer@ pTarget;
+
+	for ( int iIndex = 1; iIndex <= g_PlayerFuncs.GetNumPlayers(); iIndex++ )
 	{
-		CBasePlayer@ pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
+		@pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 		
 		if ( pTarget is null || !pTarget.IsConnected() )
 			continue;

@@ -16,7 +16,7 @@ void PluginInit()
 
 CClientCommand iammo( "iammo", "<playername/#userid/@all>", @CmdInfiniteAmmo );
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	g_Scheduler.ClearTimerList();
 
@@ -28,7 +28,7 @@ void MapStart()
 	if ( g_iAmmoIndex.length() > 0 )
 		g_iAmmoIndex.resize( 0 );
 
-	for ( uint i = 0; i < g_pAmmo.length(); ++i )
+	for ( uint i = 0; i < g_pAmmo.length(); i++ )
 		g_iAmmoIndex.insertLast( g_PlayerFuncs.GetAmmoIndex( g_pAmmo[i] ) );
 }
 
@@ -43,10 +43,12 @@ void InfiniteAmmo()
 		
 		return;
 	}
+	
+	CBasePlayer@ pPlayer;
 
-	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+	for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 	{
-		CBasePlayer@ pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
+		@pPlayer = g_PlayerFuncs.FindPlayerByIndex( iPlayer );
 
 		if ( pPlayer is null || !pPlayer.IsConnected() || !pPlayer.IsAlive() )
 			continue;
@@ -85,17 +87,19 @@ void InfiniteAmmoPlayer( int iPlayer )
 
 void GiveAllAmmo( CBasePlayer@ pPlayer )
 {
-	for ( uint i = 0; i < g_iAmmoIndex.length(); ++i )
+	int iAmmoIndex, iMaxAmmo, iAmmoInventory;
+
+	for ( uint i = 0; i < g_iAmmoIndex.length(); i++ )
 	{
-		int iAmmoIndex = g_iAmmoIndex[i];
+		iAmmoIndex = g_iAmmoIndex[i];
 		if ( iAmmoIndex == -1 )
 			continue;
 
-		int iMaxAmmo = pPlayer.GetMaxAmmo( iAmmoIndex );
+		iMaxAmmo = pPlayer.GetMaxAmmo( iAmmoIndex );
 	/*	if ( iMaxAmmo == 10 )
 			pPlayer.SetMaxAmmo( iAmmoIndex, iMaxAmmo + 10 );*/
 
-		int iAmmoInventory = pPlayer.AmmoInventory( iAmmoIndex );
+		iAmmoInventory = pPlayer.AmmoInventory( iAmmoIndex );
 		if ( iMaxAmmo == iAmmoInventory )
 			continue;
 
@@ -125,7 +129,7 @@ void CmdInfiniteAmmo( const CCommand@ args )
 	{
 		if ( !TaskExist( g_pInfiniteAmmoFunction ) )
 		{
-			for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; ++iPlayer )
+			for ( int iPlayer = 1; iPlayer <= g_Engine.maxClients; iPlayer++ )
 			{
 				if ( TaskExist( g_pInfiniteAmmoPlayerFunction[iPlayer] ) )
 					g_Scheduler.RemoveTimer( g_pInfiniteAmmoPlayerFunction[iPlayer] );
@@ -178,7 +182,7 @@ CBasePlayer@ GetTargetPlayer( CBasePlayer@ pPlayer, const string& in szNameOrUse
 	{
 		CBasePlayer@ pTempPlayer = null;
 		string szPlayerName;
-		for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+		for ( int iIndex = 1; iIndex <= g_Engine.maxClients; iIndex++ )
 		{
 			@pTempPlayer = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 			
@@ -201,7 +205,7 @@ CBasePlayer@ GetTargetPlayer( CBasePlayer@ pPlayer, const string& in szNameOrUse
 	if ( pTarget is null && szNameOrUserId[0] == "#" )
 	{
 		string szUserId;
-		for ( int iIndex = 1; iIndex <= g_Engine.maxClients; ++iIndex )
+		for ( int iIndex = 1; iIndex <= g_Engine.maxClients; iIndex++ )
 		{
 			@pTarget = g_PlayerFuncs.FindPlayerByIndex( iIndex );
 			
@@ -234,6 +238,12 @@ CBasePlayer@ GetTargetPlayer( CBasePlayer@ pPlayer, const string& in szNameOrUse
 		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "Client " + pTarget.pev.netname + " has immunity\n" );
 		return null;
 	}
+
+/*	if ( !pTarget.IsAlive() )
+	{
+		g_EngineFuncs.ClientPrintf( pPlayer, print_console, "That action can't be performed on dead client " + pTarget.pev.netname + "\n" );
+		return null;
+	}*/
 	
 	return pTarget;
 }

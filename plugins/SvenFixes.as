@@ -3,6 +3,8 @@ bool g_bFix511 = false; // non-functional killtarget for trigger_camera
 // 5.23 - Explosives only func_breakable with filled Targetname doesn't take damage from player rpg
 // 5.24 - Osprey (monster_osprey, monster_blkop_osprey) exploding crash
 //		- monster_chumtoad don't follow their owner and don't show monsterinfo
+// 5.25 - monster_chumtoad don't follow their owner and don't show monsterinfo
+// 5.26 - monster_chumtoad don't follow their owner and don't show monsterinfo
 
 uint g_nVersion;
 
@@ -16,8 +18,9 @@ void PluginInit()
 	switch ( g_nVersion )
 	{
 		case 511: g_bFix511 = true; break;
-		case 524: g_Hooks.RegisterHook( Hooks::Game::EntityCreated, @EntityCreated ); break;
-		case 525: g_Hooks.RegisterHook( Hooks::Game::EntityCreated, @EntityCreated ); break;
+		case 524:
+		case 525:
+		case 526: g_Hooks.RegisterHook( Hooks::Game::EntityCreated, @EntityCreated ); break;
 	}
 }
 

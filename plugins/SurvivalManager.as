@@ -49,7 +49,7 @@ HookReturnCode ClientSay( SayParameters@ pParams )
 	return HOOK_CONTINUE;
 }
 
-HookReturnCode MapChange()
+HookReturnCode MapChange( const string& in szNextMap )
 {
 	if ( g_SurvivalMode.MapSupportEnabled() )
 		g_bLastStatus = g_SurvivalMode.IsEnabled();
