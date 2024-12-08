@@ -1,6 +1,6 @@
 dictionary g_dAuthIDs = {
-//{'STEAM_0:1:23909265', true},
-//{'STEAM_0:0:26180203', true}
+{'STEAM_0:1:23909265', true},
+{'STEAM_0:0:26180203', true}
 };
 
 array<string> g_pAllowedIP = {
@@ -228,7 +228,7 @@ uint MaskBitsToUIntNetmask( const uint& in mask_bits )
 		default: return 4294967295;
 	}
 	
-	return 0;
+//	return 0;
 }
 
 
