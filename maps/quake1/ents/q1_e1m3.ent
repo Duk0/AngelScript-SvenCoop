@@ -1,11 +1,18 @@
 "entity"
-{
-"target" "t5_door"
-"targetname" "t5"
-"triggerstate" "2"
-"spawnflags" "1"
-"classname" "trigger_relay"
-}
+//{
+//"target" "t5_door"
+//"targetname" "t5"
+//"triggerstate" "2"
+//"spawnflags" "1"
+//"classname" "trigger_relay"
+//}
+//{
+//"targetname" "t5"
+//"target" "t10"
+//"delay" "10.5"
+//"triggerstate" "2"
+//"classname" "trigger_relay"
+//}
 {
 "origin" "-544 24 176"
 "angles" "45 225 0"

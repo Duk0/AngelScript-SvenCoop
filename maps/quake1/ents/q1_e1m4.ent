@@ -1,31 +1,45 @@
 "entity"
+//{
+//"origin" "1800 224 940"
+//"m_flRadius" "64"
+//"targetname" "teleport_ogre"
+//"teleport_if_blocked" "1"
+//"target" "t46"
+//"classname" "point_qteleport"
+//}
+//{
+//"targetname" "counter_ogre"
+//"target" "teleport_ogre"
+//"count" "2"
+//"spawnflags" "1"
+//"classname" "trigger_counter"
+//}
+//{
+//"targetname" "t39"
+//"target" "counter_ogre"
+//"delay" "2"
+//"triggerstate" "2"
+//"classname" "trigger_relay"
+//}
+//{
+//"targetname" "t29"
+//"target" "counter_ogre"
+//"delay" "5"
+//"triggerstate" "2"
+//"classname" "trigger_relay"
+//}
 {
-"origin" "1800 224 940"
-"m_flRadius" "64"
-"targetname" "teleport_ogre"
-"teleport_if_blocked" "1"
-"target" "t46"
-"classname" "point_qteleport"
-}
-{
-"targetname" "counter_ogre"
-"target" "teleport_ogre"
-"count" "2"
-"spawnflags" "1"
-"classname" "trigger_counter"
-}
-{
-"targetname" "t39"
-"target" "counter_ogre"
-"delay" "2"
+"targetname" "t53"
+"target" "t120"
 "triggerstate" "2"
+"spawnflags" "65"
 "classname" "trigger_relay"
 }
 {
-"targetname" "t29"
-"target" "counter_ogre"
-"delay" "5"
+"targetname" "t39"
+"target" "t120"
 "triggerstate" "2"
+"spawnflags" "65"
 "classname" "trigger_relay"
 }
 {

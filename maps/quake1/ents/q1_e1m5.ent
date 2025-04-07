@@ -31,3 +31,11 @@
 "wait" "30"
 "classname" "trigger_camera"
 }
+{
+"origin" "704 1520 84"
+"target" "ts45"
+"angles" "0 90 0"
+"targetname" "t45_fix"
+"spawnflags" "32"
+"classname" "info_teleport_destination"
+}

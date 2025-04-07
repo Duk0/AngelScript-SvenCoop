@@ -1,11 +1,11 @@
 "entity"
-{
-"targetname" "tsk1"
-"target" "t33"
-"delay" "2"
-"triggerstate" "2"
-"classname" "trigger_relay"
-}
+//{
+//"targetname" "tsk1"
+//"target" "t33"
+//"delay" "2"
+//"triggerstate" "2"
+//"classname" "trigger_relay"
+//}
 {
 "origin" "144 592 -112"
 "angles" "30 315 0"

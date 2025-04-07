@@ -1,9 +1,5 @@
 "entity"
 {
-"origin" "712 2040 -408"
-"classname" "item_qsuit"
-}
-{
 "origin" "-112 704 56"
 "angles" "35 45 0"
 "targetname" "q1_camera"
