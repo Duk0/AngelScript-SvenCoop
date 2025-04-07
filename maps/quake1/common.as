@@ -25,6 +25,7 @@ const float PLAYER_MAX_SAFE_FALL_SPEED = 580.0; // approx 20 feet
 
 const Cvar@ g_pCvarGravity, g_pCvarStepSize;
 int g_iAmmoBuckshot, g_iAmmoBolts, g_iAmmoRockets, g_iAmmoUranium;
+bool g_bDeathmatch = false;
 
 void q1_InitCommon()
 {
@@ -152,6 +153,13 @@ HookReturnCode q1_PlayerTakeDamage( DamageInfo@ pDamageInfo )
 
 	if ( !pDamageInfo.pVictim.IsPlayer() || !pDamageInfo.pVictim.IsAlive() )
 		return HOOK_CONTINUE;
+
+	// HACK: force friendly fire in DM by changing the players to 2 hostile classes before TakeDamage takes place
+	if ( g_bDeathmatch && pDamageInfo.pAttacker !is null && pDamageInfo.pAttacker.IsPlayer() && pDamageInfo.pAttacker != pDamageInfo.pVictim )
+	{
+		pDamageInfo.pVictim.KeyValue( "classify", CLASS_HUMAN_MILITARY );
+		pDamageInfo.pAttacker.KeyValue( "classify", CLASS_PLAYER );
+	}
 
 //	g_EngineFuncs.ServerPrint( "bitsDamageType: " + pDamageInfo.bitsDamageType + "\n" );
 

@@ -89,7 +89,7 @@ class trigger_qboss : ScriptBaseEntity
 class trigger_qteleport : ScriptBaseEntity
 {
 	private int m_iNumAttempts = 0;
-	private int m_iMaxAttempts = 2;
+	private int m_iMaxAttempts = 5;
 
 	void Spawn()
 	{
@@ -132,7 +132,7 @@ class trigger_qteleport : ScriptBaseEntity
 			return;
 
 		Vector vecOrigin = pTarget.GetOrigin();
-		vecOrigin.z += 30;
+		vecOrigin.z += 20;
 
 		g_EntityFuncs.SetOrigin( pOther, vecOrigin );
 
@@ -166,7 +166,7 @@ class trigger_qteleport : ScriptBaseEntity
 			return;
 		}
 	
-		self.pev.nextthink = g_Engine.time + 0.5;
+		self.pev.nextthink = g_Engine.time + 1.0;
 		
 		m_iNumAttempts++;
 
@@ -215,7 +215,7 @@ class trigger_qteleport : ScriptBaseEntity
 class point_qteleport : ScriptBaseEntity
 {
 	private int m_iNumAttempts = 0;
-	private int m_iMaxAttempts = 2;
+	private int m_iMaxAttempts = 5;
 	private float m_flRadius = 50.0;
 
 	bool KeyValue( const string& in szKey, const string& in szValue )
@@ -252,7 +252,7 @@ class point_qteleport : ScriptBaseEntity
 			return;
 		}
 	
-		self.pev.nextthink = g_Engine.time + 0.5;
+		self.pev.nextthink = g_Engine.time + 1.0;
 		
 		m_iNumAttempts++;
 

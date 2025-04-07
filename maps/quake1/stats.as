@@ -5,6 +5,7 @@ int g_iKilledMonsters = 0;
 
 bool g_bShowQuickStats = false;
 string g_szIntermissionMsg = "empty";
+bool g_bMultipleExit = false;
 
 void q1_ActivateScretCounter()
 {
@@ -62,6 +63,8 @@ void q1_ActivateScretCounter()
 		g_bShowQuickStats = true;
 	
 	int iCount = 0;
+	
+	bool bHasSecretMap = ( g_Engine.mapname == "q1_e1m4" );
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
 	{
@@ -81,9 +84,14 @@ void q1_ActivateScretCounter()
 		pEnt.pev.model = pEntity.pev.model;
 		pEnt.pev.spawnflags = pEntity.pev.spawnflags;
 		pEnt.pev.target = string_t( "intermission" + iCount );
+		
+		if ( bHasSecretMap && pEnt.pev.model == "*69" ) // "map" "q1_e1m8"
+			pEnt.pev.iuser1 = 1;
 
 		g_EntityFuncs.DispatchSpawn( pEnt.edict() );
 	}
+	
+	g_bMultipleExit = bHasSecretMap && ( iCount > 1 );
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "info_intermission" ) ) !is null )
 	{
@@ -145,20 +153,27 @@ void MakeStatsMsg()
 {
 	int iTime = int( g_Engine.time );
 	snprintf( g_szIntermissionMsg, "COMPLETED\n\nTime     %1:%2\n\nSecrets     %3/%4     \n\nKills     %5/%6", AttachSpacePad( iTime / 60 ),
-				AttachSpacePad( iTime % 60, false ), AttachSpacePad( g_iFoundSecrets ), AttachSpacePad( g_iTotalSecrets, false ),
+				AttachSpacePad( iTime % 60, false, true ), AttachSpacePad( g_iFoundSecrets ), AttachSpacePad( g_iTotalSecrets, false ),
 				AttachSpacePad( g_iKilledMonsters ), AttachSpacePad( g_iTotalMonsters, false ) );
 }
 
-string AttachSpacePad( int iNum, bool bFront = true )
+string AttachSpacePad( int iNum, bool bFront = true, bool bZero = false )
 {
 	string szTemp = string( iNum );
 	
 	if ( szTemp.Length() == 1 )
 	{
-		if ( bFront )
-			return " " + szTemp;
-		else
-			return szTemp + " ";
+		if ( bZero ) {
+			if ( bFront )
+				return " 0" + szTemp;
+			else
+				return "0" + szTemp + " ";
+		} else {
+			if ( bFront )
+				return " " + szTemp;
+			else
+				return szTemp + " ";
+		}
 	}
 	
 	return szTemp;
@@ -226,7 +241,10 @@ void Message( CBasePlayer@ pPlayer, const string& in szText, float x = -1, float
 class CTriggerIntermission : ScriptBaseEntity
 {
 	private string m_szTarget;
-	private float m_flDelay = 20.0f;
+	private float m_flDelay = 22.0f;
+	private bool m_bVoteResult = false;
+	private bool m_bVoteStarted = false;
+	private bool m_bVoteIgnored = false;
 
 	void Spawn()
 	{
@@ -242,6 +260,7 @@ class CTriggerIntermission : ScriptBaseEntity
 			self.pev.effects |= EF_NODRAW;
 
 		m_szTarget = self.pev.target;
+		m_bVoteIgnored = ( self.pev.iuser1 == 1 );
 
 		if ( m_flDelay < 10.0 )
 			m_flDelay = 10.0f;
@@ -254,11 +273,20 @@ class CTriggerIntermission : ScriptBaseEntity
 
 	void IntermissionTouch( CBaseEntity@ pOther )
 	{
+		if ( !pOther.IsPlayer() )
+			return;
+
 		if ( m_szTarget.IsEmpty() )
 			return;
 
-		if ( !pOther.IsPlayer() )
+		if ( m_bVoteStarted )
 			return;
+
+		if ( g_bMultipleExit && !m_bVoteIgnored && !m_bVoteResult && g_iTotalSecrets > 0 && g_iFoundSecrets < g_iTotalSecrets )
+		{
+			StartExitVote();
+			return;
+		}
 
 /*		CBaseEntity@ pCamera = FindIntermission();
 
@@ -281,6 +309,8 @@ class CTriggerIntermission : ScriptBaseEntity
 				pTarget.m_iHideHUD |= 1;
 			}
 		}*/
+
+		SetTouch( null );
 
 		NetworkMessage message( MSG_ALL, NetworkMessages::HideHUD );
 			message.WriteByte( 1 ); // hide scoreboard and HUD
@@ -314,7 +344,7 @@ class CTriggerIntermission : ScriptBaseEntity
 		SetThink( ThinkFunction( IntermissionThink ) );
 		self.pev.nextthink = g_Engine.time + m_flDelay;
 
-		SetTouch( null );
+	//	SetTouch( null );
 	}
 
 	void NormalTouch( CBaseEntity@ pOther )
@@ -360,6 +390,41 @@ class CTriggerIntermission : ScriptBaseEntity
 		}
 
 		SetThink( null );
+	}
+
+	void StartExitVote()
+	{
+		Vote vote( "Quake exit map vote", "There is other exit to the secret level.\nWould you like exit this map?", 15, 51 );
+
+		vote.SetVoteBlockedCallback( VoteBlocked( this.VoteExitBlocked ) );
+		vote.SetVoteEndCallback( VoteEnd( this.VoteExitEnd ) );
+		
+		vote.Start();
+		
+		m_bVoteStarted = true;
+	}
+	
+	void VoteExitBlocked( Vote@ pVote, float flTime )
+	{
+		//Schedule to vote again after the current vote has finished
+		g_Scheduler.SetTimeout( @this, "StartExitVote", flTime - g_Engine.time );
+	}
+	
+	void VoteExitEnd( Vote@ pVote, bool bResult, int iVoters )
+	{
+		m_bVoteResult = bResult;
+		
+		m_bVoteStarted = false;
+
+		if ( bResult )
+		{
+			CBaseEntity@ pEnt = null;
+			while ( ( @pEnt = g_EntityFuncs.FindEntityByClassname( pEnt, "player" ) ) !is null )
+			{
+				IntermissionTouch( pEnt );
+				break;
+			}
+		}
 	}
 }
 

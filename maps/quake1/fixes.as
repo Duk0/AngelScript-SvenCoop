@@ -66,7 +66,7 @@ void q1_ActivateFixes()
 		@pDelay = cast<CBaseDelay@>( pEntity );
 		if ( pDelay is null || !string( pDelay.m_iszKillTarget ).IsEmpty() )
 			continue;
-		
+
 		szMessage = pEntity.pev.message;
 		
 		if ( szMessage.IsEmpty() )
@@ -74,12 +74,6 @@ void q1_ActivateFixes()
 			g_EntityFuncs.Remove( pEntity ); // just remove emtpy relay
 			continue;
 		}
-		
-	/*	if ( !pEntity.pev.SpawnFlagBitSet( 2 ) )
-			pEntity.pev.spawnflags |= 2;
-
-		g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "classname", "env_message" );
-		g_EntityFuncs.DispatchSpawn( pEntity.edict() );*/
 
 		@pEnt = g_EntityFuncs.Create( "env_message", pEntity.GetOrigin(), pEntity.pev.angles, true );
 		if ( pEnt is null )
@@ -108,13 +102,13 @@ void q1_ActivateFixes()
 		if ( pEntity.pev.spawnflags > 0 )
 			continue;
 
-		@pDelay = cast<CBaseDelay@>( pEntity );
-		if ( pDelay is null || !string( pDelay.m_iszKillTarget ).IsEmpty() )
-			continue;
-		
 		szMessage = pEntity.pev.message;
 		
 		if ( szMessage.IsEmpty() )
+			continue;
+
+		@pDelay = cast<CBaseDelay@>( pEntity );
+		if ( pDelay is null || !string( pDelay.m_iszKillTarget ).IsEmpty() )
 			continue;
 
 		@pEnt = g_EntityFuncs.Create( "env_message", g_vecZero, g_vecZero, true );
@@ -129,7 +123,7 @@ void q1_ActivateFixes()
 		
 		g_EntityFuncs.Remove( pEntity );
 	}
-	
+
 	float flDelay;
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_once" ) ) !is null )
@@ -146,24 +140,31 @@ void q1_ActivateFixes()
 		if ( pEntity.pev.spawnflags > 0 )
 			continue;
 
-		@pDelay = cast<CBaseDelay@>( pEntity );
-		if ( pDelay is null || !string( pDelay.m_iszKillTarget ).IsEmpty() )
-			continue;
-			
-		flDelay = pDelay.m_flDelay;
-		
 		szMessage = pEntity.pev.message;
 		
 		if ( !szMessage.IsEmpty() )
 			continue;
 
+		@pDelay = cast<CBaseDelay@>( pEntity );
+		if ( pDelay is null || !string( pDelay.m_iszKillTarget ).IsEmpty() )
+			continue;
+			
+		flDelay = pDelay.m_flDelay;
+
+		if ( flDelay > 0 )
+		{
+			if ( pEntity.pev.spawnflags == 0 )
+				pEntity.pev.spawnflags |= 2;
+		}
+/*
 		@pEnt = g_EntityFuncs.Create( "trigger_relay", g_vecZero, g_vecZero, true );
 		if ( pEnt is null )
 			continue;
 		
 		pEnt.pev.targetname = szTargetName;
 		pEnt.pev.target = szTarget;
-		pEnt.pev.spawnflags = 65;
+	//	pEnt.pev.spawnflags = 65;
+		pEnt.pev.spawnflags = 1;
 		
 		g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "triggerstate", "2" );
 		
@@ -172,7 +173,7 @@ void q1_ActivateFixes()
 		
 		g_EntityFuncs.DispatchSpawn( pEnt.edict() );
 		
-		g_EntityFuncs.Remove( pEntity );
+		g_EntityFuncs.Remove( pEntity );*/
 	}
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_teleport" ) ) !is null )
@@ -191,10 +192,10 @@ void q1_ActivateFixes()
 			continue;
 
 		pEnt.pev.model = pEntity.pev.model;
-	/*	if ( !szTargetName.IsEmpty() )
-			pEnt.pev.targetname = szTargetName;
-		else
-			pEnt.pev.spawnflags |= 16384;*/
+	//	if ( !szTargetName.IsEmpty() )
+	//		pEnt.pev.targetname = szTargetName;
+	//	else
+	//		pEnt.pev.spawnflags |= 16384;
 		pEnt.pev.targetname = szTargetName;
 		pEnt.pev.target = szTarget;
 
@@ -208,6 +209,7 @@ void q1_ActivateFixes()
 		
 		g_EntityFuncs.Remove( pEntity );
 	}
+
 /*
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_q*" ) ) !is null )
 	{
@@ -234,6 +236,7 @@ void q1_ActivateFixes()
 		g_EntityFuncs.Remove( pEntity );
 	}
 */
+
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "item_healthkit" ) ) !is null )
 	{
 		if ( pEntity.pev.SpawnFlagBitSet( 1 ) )
@@ -294,7 +297,7 @@ void q1_ActivateFixes()
 
 	if ( g_szCurrentMap.ICompare( "q1_start" ) == 0 )
 	{
-		bFixDoors = true;
+/*		bFixDoors = true;
 	
 		data.targetname = "door1b";
 		data.fireonopening = "door1a";
@@ -318,13 +321,28 @@ void q1_ActivateFixes()
 		data.fireonopening = "door2b";
 		data.m_fIgnoreTargetname = true;
 		data.wait = 0;
-		dDoors.set( "*28", data );
+		dDoors.set( "*28", data );*/
+		
+		@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_qzombie" ) ) !is null )
+		{
+			g_EntityFuncs.Remove( pEntity );
+		}
+
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "te2d" );
+		if ( pEntity !is null )
+			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "5" );
+
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "te3d" );
+		if ( pEntity !is null )
+			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "5" );
 
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m1" ) == 0 )
 	{
-		bFixDoors = true;
+/*		bFixDoors = true;
 	
 		data.targetname = "door1b";
 		data.fireonopening = "door1a";
@@ -348,13 +366,13 @@ void q1_ActivateFixes()
 		data.fireonopening = "door2b";
 		data.m_fIgnoreTargetname = true;
 		data.wait = 0;
-		dDoors.set( "*6", data );
+		dDoors.set( "*6", data );*/
 /*
 		data.Clear();
 		data.wait = 3;
 		dDoors.set( "*14", data );
 */	
-		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t4" );
+/*		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t4" );
 		if ( pEntity !is null )
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "3" );
 		
@@ -364,28 +382,28 @@ void q1_ActivateFixes()
 		//	g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "CustomStartSound", "items/suitchargeok1.wav" );
 			g_EntityFuncs.Remove( pEntity );
 		}
-		
+*/		
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m2" ) == 0 )
 	{
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td2" );
+/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td2" );
 		if ( pEntity !is null )
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
-
-		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
+*/
+/*		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
 		if ( pEntity !is null )
 		{
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}
+		}*/
 
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m3" ) == 0 )
 	{
-		bFixDoors = true;
+/*		bFixDoors = true;
 
 		data.targetname = "door1b";
 		data.fireonopening = "door1a";
@@ -422,8 +440,7 @@ void q1_ActivateFixes()
 		data.m_fIgnoreTargetname = true;
 		data.wait = 0;
 		dDoors.set( "*34", data );
-
-
+*/
 /*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t5" );
 		if ( pEntity !is null )
 		{
@@ -441,10 +458,8 @@ void q1_ActivateFixes()
 		
 		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t10" );
 		if ( pEntity !is null )
-		{
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "-1" );
-		}
-
+/*
 		@pEntity = g_EntityFuncs.FindEntityByString( null, "model", "*49" );
 		if ( pEntity !is null )
 			pEntity.pev.targetname = string_t( "t5_door" );
@@ -461,12 +476,34 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
 		}
+*/
+/*
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t1b" );
+		if ( pEntity !is null )
+			
 
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t1a" );
+		if ( pEntity !is null )
+*/
+/*
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t10" );
+		if ( pEntity !is null )
+			g_EntityFuncs.Remove( pEntity );
+*/
+/*
+		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t666" );
+		if ( pEntity !is null )
+			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "target_on_fail", "" );
+
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t666" );
+		if ( pEntity !is null )
+			g_EntityFuncs.Remove( pEntity );
+*/
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m4" ) == 0 )
 	{
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t116" );
+/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t116" );
 		if ( pEntity !is null )
 		{
 		//	pEntity.SetOrigin( Vector( 1790, 224, 920 ) );
@@ -497,12 +534,41 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
 		}
-		
+*/
+
+		@pEntity = null;
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", "t120" ) ) !is null )
+		{
+			if ( pEntity.GetClassname() != "trigger_once" )
+				continue;
+
+			g_EntityFuncs.Remove( pEntity );
+		}
+
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m5" ) == 0 )
 	{
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
+		@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", "t45" ) ) !is null )
+		{
+			if ( pEntity.pev.SpawnFlagBitSet( 1 ) )
+				pEntity.pev.spawnflags &= ~1;
+
+			if ( pEntity.pev.model == "*28" )
+				g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "target", "t45_fix" );
+		}
+
+/*
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "model", "*48" );
+		if ( pEntity !is null )
+		{
+			if ( pEntity.pev.SpawnFlagBitSet( 256 ) )
+				pEntity.pev.spawnflags &= ~256;
+		}
+*/
+/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
 		if ( pEntity !is null )
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_goldkey" );
 
@@ -518,7 +584,7 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
 		}
-		
+*/	
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m6" ) == 0 )
@@ -526,7 +592,7 @@ void q1_ActivateFixes()
 		@pEntity = g_EntityFuncs.FindEntityByString( null, "model", "*47" );
 		if ( pEntity !is null )
 			pEntity.pev.targetname = string_t( "t52" );
-
+/*
 		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td2" );
 		if ( pEntity !is null )
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_goldkey" );
@@ -543,7 +609,7 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
 		}
-		
+*/
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m7" ) == 0 )
@@ -559,7 +625,7 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "fadeout", "3" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "color", "100 250 250" );
 		}
-
+/*
 		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
 		if ( pEntity !is null )
 		{
@@ -574,12 +640,12 @@ void q1_ActivateFixes()
 				g_EntityFuncs.Remove( pEntity );
 			}	
 		}
-		
+*/	
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m8" ) == 0 )
 	{
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
+/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
 		if ( pEntity !is null )
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
 
@@ -590,8 +656,75 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
 		}
+*/
+
+		@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_plat" ) ) !is null )
+		{
+			szTargetName = pEntity.GetTargetname();
+
+			if ( szTargetName.IsEmpty() && !pEntity.pev.SpawnFlagBitSet( 1 ) )
+				continue;
+				
+		//	pEntity.pev.spawnflags &= ~1;
+
+		//	g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "targetname", "" );
+		//	g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "fireonopened", "" );
+		//	g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "fireonclosed", "" );
+			
+		//	g_EntityFuncs.Remove( pEntity );
 		
+			pEntity.Use( pEntity, pEntity, USE_TOGGLE, 1 );
+		}
+/*
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "knuckle" );
+		if ( pEntity !is null )
+			g_EntityFuncs.Remove( pEntity );
+
+		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "sanic" );
+		if ( pEntity !is null )
+			g_EntityFuncs.Remove( pEntity );
+*/
+		@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_multiple" ) ) !is null )
+		{
+			if ( pEntity.pev.target == "td1" )
+				continue;
+
+			if ( pEntity.pev.SpawnFlagBitSet( 16 ) )
+				pEntity.pev.spawnflags |= 32;
+		}
+
 		bLoadEnts = true;
+	}
+	else if ( g_szCurrentMap.ICompare( "q1_dm2" ) == 0 )
+	{
+		@pEntity = null;
+	
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
+		{
+			g_EntityFuncs.Remove( pEntity );
+		}
+	}
+	else if ( g_szCurrentMap.ICompare( "q1_dm4" ) == 0 )
+	{
+		@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
+		{
+			g_EntityFuncs.Remove( pEntity );
+		}
+	}
+	else if ( g_szCurrentMap.ICompare( "q1_dm6" ) == 0 )
+	{
+		@pEntity = null;
+
+		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "trigger_changelevel" ) ) !is null )
+		{
+			g_EntityFuncs.Remove( pEntity );
+		}
 	}
 
 	if ( bLoadEnts )

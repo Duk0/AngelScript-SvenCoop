@@ -1,3 +1,22 @@
+const int Q1_KEY_SILVER = 1;
+const int Q1_KEY_GOLD   = 2;
+const int Q1_KEY_RUNE1  = 4;
+const int Q1_KEY_RUNE2  = 8;
+const int Q1_KEY_RUNE3  = 16;
+
+// set in base-themed maps manually (q1_e1m1, q1_e2m1, ...)
+const int Q1_KEY_SF_KEYCARD = 65536;
+
+// item icon stuff
+// all icons are contained in a sprite sheet
+const string Q1_ICON_SPR = "quake1/huditems.spr";
+const int Q1_ICON_W = 64; // size of individual icon
+const int Q1_ICON_H = 64;
+
+// store collected keys globally
+// TODO: recall runes?
+//int g_iQ1Keys = 0;
+
 class CBaseQuakePlayerItem : ScriptBasePlayerItemEntity
 {
 	protected CBasePlayer@ m_pPlayer
@@ -135,7 +154,7 @@ class CBaseQuakePlayerItem : ScriptBasePlayerItemEntity
 		self.pev.nextthink = g_Engine.time + 0.01;
 		self.pev.angles.y += 1.0;
 
-		if ( m_bCanRespawn && self.pev.effects & EF_NODRAW != 0 )
+		if ( m_bCanRespawn && ( self.pev.effects & EF_NODRAW ) != 0 )
 		{
 			m_bCanRespawn = false;
 			g_Scheduler.SetTimeout( this, "MaterializeItem", m_flCustomRespawnTime );
@@ -379,7 +398,7 @@ class CBaseQuakeItem : ScriptBaseItemEntity
 		self.pev.nextthink = g_Engine.time + 0.01;
 		self.pev.angles.y += 1.0;
 
-	/*	if ( m_bCanRespawn && self.pev.effects & EF_NODRAW != 0 )
+	/*	if ( m_bCanRespawn && ( self.pev.effects & EF_NODRAW ) != 0 )
 		{
 		//	m_bCanTouch = true;
 			m_bCanRespawn = false;
@@ -392,6 +411,166 @@ class CBaseQuakeItem : ScriptBaseItemEntity
 	}
 	
 //	void RespawnArmor() {};
+
+	bool GetItemInfo( ItemInfo& out info )
+	{
+		info.iWeight = -1;
+		info.iFlags = 0;
+		return true;
+	}
+}
+
+class CBaseQuakeKey : ScriptBaseEntity
+//class CBaseQuakeKey : ScriptBaseItemEntity
+{
+	protected string m_sModel = "models/error.mdl";
+	protected string m_sSound;
+//	protected int m_iKey;
+	protected string m_sPickupMsg;
+//	protected bool m_bRespawns = true;
+//	protected bool m_bRotates = true;
+	protected bool m_bKeyCard;
+
+	void Precache()
+	{
+		g_Game.PrecacheModel( m_sModel );
+		g_SoundSystem.PrecacheSound( m_sSound );
+	}
+
+	void Spawn()
+	{
+		m_bKeyCard = ( self.pev.spawnflags & Q1_KEY_SF_KEYCARD ) != 0;
+
+		Precache();
+		BaseClass.Spawn();
+
+		g_EntityFuncs.SetModel( self, m_sModel );
+		g_EntityFuncs.SetSize( self.pev, Vector(-16, -16, 0), Vector(16, 16, 16) );
+
+		self.pev.movetype = MOVETYPE_TOSS;
+		self.pev.solid = SOLID_TRIGGER;
+
+	//	self.FallInit();
+	//	self.pev.netname = m_sName;
+	//	SetThink( m_bRotates ? ThinkFunction( this.ItemThink ) : null );
+	//	SetTouch( TouchFunction( this.ItemTouch ) );
+		self.pev.nextthink = g_Engine.time + 0.01;
+	}
+/*
+	void ItemThink()
+	{
+		// yaw around slowly
+		self.pev.angles.y += 1.0;
+		self.pev.nextthink = g_Engine.time + 0.01;
+	}
+*/
+	void Think()
+	{
+		self.pev.angles.y += 1.0;
+		self.pev.nextthink = g_Engine.time + 0.01;
+	}
+
+//	void ItemTouch( CBaseEntity@ pOther )
+	void Touch( CBaseEntity@ pOther )
+	{
+		if ( pOther is null ) return;
+		if ( !pOther.IsPlayer() ) return;
+		if ( pOther.pev.health <= 0 ) return;
+
+		CBasePlayer@ pPlayer = cast<CBasePlayer@>( pOther );
+
+		if ( pPlayer is null ) return;
+
+		if ( PickedUp( pPlayer ) )
+		{
+			SetTouch( null );
+			self.SUB_UseTargets( pOther, USE_TOGGLE, 0 );
+
+			g_SoundSystem.EmitSound( pPlayer.edict(), CHAN_ITEM, m_sSound, 1.0, ATTN_NORM );
+		//	if ( m_bRespawns )
+		//		Respawn();
+		//	else
+			Die();
+		}
+	}
+/*
+	bool MyTouch( CBasePlayer@ pPlayer )
+	{
+		if ( PickedUp( pPlayer ) )
+		{
+			SetTouch( null );
+			self.SUB_UseTargets( pPlayer, USE_TOGGLE, 0 );*/
+		//	CBaseEntity@ pOther = pPlayer;
+		//	self.SUB_UseTargets( pOther, USE_TOGGLE, 0 );
+/*
+			string szTarget = self.pev.target;
+			if ( !szTarget.IsEmpty() )
+			{
+				CBaseEntity@ pEntity = null;
+
+				while ( ( @pEntity = g_EntityFuncs.FindEntityByTargetname( pEntity, szTarget ) ) !is null )
+				{
+					pEntity.Use( pPlayer, pPlayer, USE_TOGGLE );
+
+					if ( pEntity.GetClassname() != "func_wall_toggle" )
+						continue;
+				
+					g_EntityFuncs.Remove( pEntity );
+				}
+*/
+				//g_EntityFuncs.FireTargets( szTarget, pPlayer, pPlayer, USE_TOGGLE );
+/*			}
+
+			g_SoundSystem.EmitSound( pPlayer.edict(), CHAN_ITEM, m_sSound, 1.0, ATTN_NORM );
+		//	if ( m_bRespawns )
+		//		Respawn();
+		//	else
+			Die();
+			
+			return true;
+		}
+
+		return false;
+	}*/
+/*
+	// despite the name, this is called when the item gets picked
+	// to set up the respawn timer and shit
+	CBaseEntity@ Respawn()
+	{
+		self.pev.effects |= EF_NODRAW;
+		SetThink( ThinkFunction( this.Materialize ) );
+		self.pev.nextthink = g_Engine.time + m_fRespawnTime;
+		return self;
+	}
+
+	// but this is called when the item is ready to respawn
+	void Materialize()
+	{
+		if ( ( self.pev.effects & EF_NODRAW ) != 0 )
+		{
+			g_SoundSystem.EmitSound( self.edict(), CHAN_ITEM, "quake1/items/itembk2.wav", 1.0, ATTN_NORM );
+			self.pev.effects &= ~EF_NODRAW;
+			self.pev.effects |= EF_MUZZLEFLASH;
+		}
+
+		SetThink( m_bRotates ? ThinkFunction( this.ItemThink ) : null );
+		SetTouch( TouchFunction( this.ItemTouch ) );
+		self.pev.nextthink = g_Engine.time + 0.01;
+	}
+*/
+
+	void Die()
+	{
+		g_EntityFuncs.Remove( self );
+	}
+
+	bool PickedUp( CBasePlayer@ pPlayer )
+	{
+	//	m_bRespawns = false;
+	//	g_iQ1Keys |= m_iKey;
+		g_PlayerFuncs.ShowMessageAll( m_sPickupMsg );
+		return true;
+	}
 
 	bool GetItemInfo( ItemInfo& out info )
 	{
@@ -661,7 +840,7 @@ class item_qarmor1 : CBaseQuakeItem
 
 	void MaterializeArmor()
 	{
-		if ( self.pev.effects & EF_NODRAW != 0 )
+		if ( ( self.pev.effects & EF_NODRAW ) != 0 )
 		{
 			g_SoundSystem.EmitSoundDyn( self.edict(), CHAN_ITEM, "quake1/items/itembk2.wav", 1.0, ATTN_NORM, 0, 150 );
 			self.pev.effects &= ~EF_NODRAW;
@@ -698,7 +877,7 @@ class item_qarmor2 : CBaseQuakeItem
 
 	void MaterializeArmor()
 	{
-		if ( self.pev.effects & EF_NODRAW != 0 )
+		if ( ( self.pev.effects & EF_NODRAW ) != 0 )
 		{
 			g_SoundSystem.EmitSoundDyn( self.edict(), CHAN_ITEM, "quake1/items/itembk2.wav", 1.0, ATTN_NORM, 0, 150 );
 			self.pev.effects &= ~EF_NODRAW;
@@ -734,7 +913,7 @@ class item_qarmor3 : CBaseQuakeItem
 
 	void MaterializeArmor()
 	{
-		if ( self.pev.effects & EF_NODRAW != 0 )
+		if ( ( self.pev.effects & EF_NODRAW ) != 0 )
 		{
 			g_SoundSystem.EmitSoundDyn( self.edict(), CHAN_ITEM, "quake1/items/itembk2.wav", 1.0, ATTN_NORM, 0, 150 );
 			self.pev.effects &= ~EF_NODRAW;
@@ -745,6 +924,85 @@ class item_qarmor3 : CBaseQuakeItem
 		SetThink( null );
 		self.pev.nextthink = g_Engine.time + 0.01;
 	}*/
+}
+
+class item_qkey1 : CBaseQuakeKey
+{
+	item_qkey1()
+	{
+	//	m_iKey = Q1_KEY_SILVER;
+	//	m_bCanRespawn = false;
+	//	m_sName = "Silver Key";
+		m_sPickupMsg = "You got the Silver Key.";
+
+		if ( m_bKeyCard )
+		{
+			m_sModel = "models/quake1/w_keycard_silver.mdl";
+			m_sSound = "quake1/bkey.wav";
+		} else {
+			m_sModel = "models/quake1/w_keyrune_silver.mdl";
+			m_sSound = "quake1/mkey.wav";
+		}
+	}
+}
+
+class item_qkey2 : CBaseQuakeKey
+{
+	item_qkey2()
+	{
+	//	m_iKey = Q1_KEY_GOLD;
+	//	m_bCanRespawn = false;
+	//	m_sName = "Gold Key";
+		m_sPickupMsg = "You got the Gold Key.";
+
+		if ( m_bKeyCard )
+		{
+			m_sModel = "models/quake1/w_keycard_gold.mdl";
+			m_sSound = "quake1/bkey.wav";
+		} else {
+			m_sModel = "models/quake1/w_keyrune_gold.mdl";
+			m_sSound = "quake1/mkey.wav";
+		}
+	}
+}
+
+class item_qrune1 : CBaseQuakeKey
+{
+	item_qrune1()
+	{
+	//	m_iKey = Q1_KEY_RUNE1;
+	//	m_bCanRespawn = false;
+	//	m_sName = "Rune of Black Magic";
+		m_sPickupMsg = "You got the Rune of Black Magic.";
+		m_sModel = "models/quake1/w_rune1.mdl";
+		m_sSound = "quake1/rune.wav";
+	}
+}
+
+class item_qrune2 : CBaseQuakeKey
+{
+	item_qrune2()
+	{
+	//	m_iKey = Q1_KEY_RUNE2;
+	//	m_bCanRespawn = false;
+	//	m_sName = "Rune of shit";
+		m_sPickupMsg = "You got the Rune of shit.";
+		m_sModel = "models/quake1/w_rune2.mdl";
+		m_sSound = "quake1/rune.wav";
+	}
+}
+
+class item_qrune3 : CBaseQuakeKey
+{
+	item_qrune3()
+	{
+	//	m_iKey = Q1_KEY_RUNE3;
+	//	m_bCanRespawn = false;
+	//	m_sName = "Rune of fuck";
+		m_sPickupMsg = "You got the Rune of fuck.";
+		m_sModel = "models/quake1/w_rune3.mdl";
+		m_sSound = "quake1/rune.wav";
+	}
 }
 
 // backpack
@@ -784,7 +1042,7 @@ class CBackPack : ScriptBaseEntity
 
 	void Think()
 	{
-		self.pev.angles.y += 1.25;
+		self.pev.angles.y += 1.0;
 
 		if ( m_fDeathTime < g_Engine.time )
 			Die();
@@ -862,13 +1120,13 @@ CBackPack@ q1_SpawnBackpack( CBaseEntity@ pOwner )
 
 // fucking schedulers again
 // gotta do this AFTER pickup to override the default pickup sound
-void q1_ScheduleItemSound( CBasePlayer @pPlayer, string m_sSound )
+void q1_ScheduleItemSound( CBasePlayer @pPlayer, string sSound )
 {
 	g_SoundSystem.StopSound( pPlayer.edict(), CHAN_ITEM, "items/gunpickup2.wav", true );
-	g_Scheduler.SetTimeout( "q1_ScheduledItemSound", 0.001, EHandle( pPlayer ), m_sSound );
+	g_Scheduler.SetTimeout( "q1_ScheduledItemSound", 0.001, EHandle( pPlayer ), sSound );
 }
 
-void q1_ScheduledItemSound( EHandle hPlayer, string m_sSound )
+void q1_ScheduledItemSound( EHandle hPlayer, string sSound )
 {
 	if ( !hPlayer.IsValid() )
 		return;
@@ -879,7 +1137,7 @@ void q1_ScheduledItemSound( EHandle hPlayer, string m_sSound )
 		return;
 
 //	g_SoundSystem.StopSound( pEntity.edict(), CHAN_ITEM, "items/gunpickup2.wav", true );
-	g_SoundSystem.EmitSound( pEntity.edict(), CHAN_ITEM, m_sSound, 1.0, ATTN_NORM );
+	g_SoundSystem.EmitSound( pEntity.edict(), CHAN_ITEM, sSound, 1.0, ATTN_NORM );
 }
 
 void q1_BonusFlash( CBasePlayer @pPlayer )
@@ -898,8 +1156,13 @@ void q1_RegisterItems()
 	g_Game.PrecacheModel( "models/quake1/w_armor_y.mdl" );
 	g_Game.PrecacheModel( "models/quake1/w_armor_r.mdl" );
 	g_Game.PrecacheModel( "models/quake1/w_backpack.mdl" );
+	g_Game.PrecacheModel( "models/quake1/w_keyrune_silver.mdl" );
+	g_Game.PrecacheModel( "models/quake1/w_keyrune_gold.mdl" );
+	g_Game.PrecacheModel( "models/quake1/w_rune1.mdl" );
+	g_Game.PrecacheModel( "models/quake1/w_rune2.mdl" );
+//	g_Game.PrecacheModel( "models/quake1/w_rune3.mdl" );
 
-	g_CustomEntityFuncs.RegisterCustomEntity ( "item_qquad", "item_qquad" );
+	g_CustomEntityFuncs.RegisterCustomEntity( "item_qquad", "item_qquad" );
 	g_ItemRegistry.RegisterItem( "item_qquad", "quake1/items" );
 	g_CustomEntityFuncs.RegisterCustomEntity( "item_qinvul", "item_qinvul" );
 	g_ItemRegistry.RegisterItem( "item_qinvul", "quake1/items" );
@@ -915,4 +1178,14 @@ void q1_RegisterItems()
 //	g_ItemRegistry.RegisterItem( "item_qarmor3", "quake1/items");
 	g_CustomEntityFuncs.RegisterCustomEntity( "CBackPack", "item_qbackpack" );
 //	g_ItemRegistry.RegisterItem( "item_qbackpack", "quake1/items" );
+	g_CustomEntityFuncs.RegisterCustomEntity( "item_qkey1", "item_qkey1" );
+//	g_ItemRegistry.RegisterItem( "item_qkey1", "quake1/items" );
+	g_CustomEntityFuncs.RegisterCustomEntity( "item_qkey2", "item_qkey2" );
+//	g_ItemRegistry.RegisterItem( "item_qkey2", "quake1/items" );
+	g_CustomEntityFuncs.RegisterCustomEntity( "item_qrune1", "item_qrune1" );
+//	g_ItemRegistry.RegisterItem( "item_qrune1", "quake1/items" );
+	g_CustomEntityFuncs.RegisterCustomEntity( "item_qrune2", "item_qrune2" );
+//	g_ItemRegistry.RegisterItem( "item_qrune2", "quake1/items" );
+//	g_CustomEntityFuncs.RegisterCustomEntity( "item_qrune3", "item_qrune3" );
+//	g_ItemRegistry.RegisterItem( "item_qrune3", "quake1/items" );
 }
