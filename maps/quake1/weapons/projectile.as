@@ -407,8 +407,13 @@ CBaseEntity@ q1_ShootCustomProjectile( string& in szClassname, string& in szMode
 }
 
 // had to move these here because shit doesn't work otherwise
-void q1_ScragDelayedSpike( CBaseEntity@ pOwner, CBaseEntity@ pEnemy, Vector vecSrc, Vector vecOffset )
+void q1_ScragDelayedSpike( EHandle hOwner, EHandle hEnemy, Vector vecSrc, Vector vecOffset )
 {
+	if ( !hOwner || !hEnemy )
+		return;
+
+	CBaseEntity@ pOwner = hOwner.GetEntity(), pEnemy = hEnemy.GetEntity();
+
 	if ( pOwner is null || pEnemy is null || pOwner.pev.health <= 0 )
 		return;
 
@@ -439,7 +444,7 @@ void q1_ScragDelayedSpike( CBaseEntity@ pOwner, CBaseEntity@ pEnemy, Vector vecS
 
 void q1_ScragDelaySpike( CBaseEntity@ pOwner, CBaseEntity@ pEnemy, Vector vecSrc, Vector vecOffset, float time )
 {
-	g_Scheduler.SetTimeout( "q1_ScragDelayedSpike", time, @pOwner, @pEnemy, vecSrc, vecOffset );
+	g_Scheduler.SetTimeout( "q1_ScragDelayedSpike", time, EHandle( @pOwner ), EHandle( @pEnemy ), vecSrc, vecOffset );
 }
 
 void q1_ZombieMissile( CBaseEntity@ pOwner, CBaseEntity@ pEnemy, Vector vecOrigin, Vector vecOffset )
