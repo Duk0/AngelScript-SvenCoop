@@ -394,7 +394,7 @@ class CTriggerIntermission : ScriptBaseEntity
 
 	void StartExitVote()
 	{
-		Vote vote( "Quake exit map vote", "There is other exit to the secret level.\nWould you like exit this map?", 15, 51 );
+		Vote vote( "Quake exit map vote", "There is other exit to the secret map.\nWould you like exit this map the usual way?", 15, 51 );
 
 		vote.SetVoteBlockedCallback( VoteBlocked( this.VoteExitBlocked ) );
 		vote.SetVoteEndCallback( VoteEnd( this.VoteExitEnd ) );

@@ -421,7 +421,6 @@ class CBaseQuakeItem : ScriptBaseItemEntity
 }
 
 class CBaseQuakeKey : ScriptBaseEntity
-//class CBaseQuakeKey : ScriptBaseItemEntity
 {
 	protected string m_sModel = "models/error.mdl";
 	protected string m_sSound;
@@ -452,25 +451,16 @@ class CBaseQuakeKey : ScriptBaseEntity
 
 	//	self.FallInit();
 	//	self.pev.netname = m_sName;
-	//	SetThink( m_bRotates ? ThinkFunction( this.ItemThink ) : null );
-	//	SetTouch( TouchFunction( this.ItemTouch ) );
+
 		self.pev.nextthink = g_Engine.time + 0.01;
 	}
-/*
-	void ItemThink()
-	{
-		// yaw around slowly
-		self.pev.angles.y += 1.0;
-		self.pev.nextthink = g_Engine.time + 0.01;
-	}
-*/
+
 	void Think()
 	{
 		self.pev.angles.y += 1.0;
 		self.pev.nextthink = g_Engine.time + 0.01;
 	}
 
-//	void ItemTouch( CBaseEntity@ pOther )
 	void Touch( CBaseEntity@ pOther )
 	{
 		if ( pOther is null ) return;
@@ -493,45 +483,7 @@ class CBaseQuakeKey : ScriptBaseEntity
 			Die();
 		}
 	}
-/*
-	bool MyTouch( CBasePlayer@ pPlayer )
-	{
-		if ( PickedUp( pPlayer ) )
-		{
-			SetTouch( null );
-			self.SUB_UseTargets( pPlayer, USE_TOGGLE, 0 );*/
-		//	CBaseEntity@ pOther = pPlayer;
-		//	self.SUB_UseTargets( pOther, USE_TOGGLE, 0 );
-/*
-			string szTarget = self.pev.target;
-			if ( !szTarget.IsEmpty() )
-			{
-				CBaseEntity@ pEntity = null;
 
-				while ( ( @pEntity = g_EntityFuncs.FindEntityByTargetname( pEntity, szTarget ) ) !is null )
-				{
-					pEntity.Use( pPlayer, pPlayer, USE_TOGGLE );
-
-					if ( pEntity.GetClassname() != "func_wall_toggle" )
-						continue;
-				
-					g_EntityFuncs.Remove( pEntity );
-				}
-*/
-				//g_EntityFuncs.FireTargets( szTarget, pPlayer, pPlayer, USE_TOGGLE );
-/*			}
-
-			g_SoundSystem.EmitSound( pPlayer.edict(), CHAN_ITEM, m_sSound, 1.0, ATTN_NORM );
-		//	if ( m_bRespawns )
-		//		Respawn();
-		//	else
-			Die();
-			
-			return true;
-		}
-
-		return false;
-	}*/
 /*
 	// despite the name, this is called when the item gets picked
 	// to set up the respawn timer and shit

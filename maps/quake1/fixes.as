@@ -23,8 +23,6 @@ void q1_InitFixes()
 
 void q1_ActivateFixes()
 {
-	//CBaseEntity@ pEntity = g_EntityFuncs.FindEntityByClassname( null, "worldspawn" );
-	
 	CBaseEntity@ pEntity = null;
 	string szTargetName;
 
@@ -32,8 +30,7 @@ void q1_ActivateFixes()
 	{
 		if ( !pEntity.pev.SpawnFlagBitSet( 1 ) )
 			continue;
-			
-	//	if ( int( string( pEntity.pev.message ).Find( "music", 0, String::CaseInsensitive ) ) == -1 )
+
 		if ( string( pEntity.pev.message ).CompareN( "quake1/music/", 13 ) != 0 )
 			continue;
 
@@ -224,18 +221,6 @@ void q1_ActivateFixes()
 		g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "TriggerTarget", szTarget );
 	}
 */
-/*
-	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_qogre" ) ) !is null )
-	{
-		@pEnt = g_EntityFuncs.Create( "monster_zombie", pEntity.GetOrigin(), pEntity.pev.angles, true );
-		if ( pEnt is null )
-			continue;
-
-		g_EntityFuncs.DispatchSpawn( pEnt.edict() );
-		
-		g_EntityFuncs.Remove( pEntity );
-	}
-*/
 
 	while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "item_healthkit" ) ) !is null )
 	{
@@ -282,9 +267,8 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEnt.edict(), "wait", string( pButton.m_flWait ) );
 			g_EntityFuncs.DispatchKeyValue( pEnt.edict(), "lip", string( pButton.m_flLip ) );
 		}
-		
+
 		g_EntityFuncs.DispatchSpawn( pEnt.edict() );
-		
 		
 		g_EntityFuncs.Remove( pEntity );
 	}
@@ -297,32 +281,6 @@ void q1_ActivateFixes()
 
 	if ( g_szCurrentMap.ICompare( "q1_start" ) == 0 )
 	{
-/*		bFixDoors = true;
-	
-		data.targetname = "door1b";
-		data.fireonopening = "door1a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*3", data );
-
-		data.targetname = "door1a";
-		data.fireonopening = "door1b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*29", data );
-
-		data.targetname = "door2b";
-		data.fireonopening = "door2a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*2", data );
-
-		data.targetname = "door2a";
-		data.fireonopening = "door2b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*28", data );*/
-		
 		@pEntity = null;
 
 		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "monster_qzombie" ) ) !is null )
@@ -341,201 +299,23 @@ void q1_ActivateFixes()
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m1" ) == 0 )
-	{
-/*		bFixDoors = true;
-	
-		data.targetname = "door1b";
-		data.fireonopening = "door1a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*1", data );
-
-		data.targetname = "door1a";
-		data.fireonopening = "door1b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*2", data );
-
-		data.targetname = "door2b";
-		data.fireonopening = "door2a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*5", data );
-
-		data.targetname = "door2a";
-		data.fireonopening = "door2b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*6", data );*/
-/*
-		data.Clear();
-		data.wait = 3;
-		dDoors.set( "*14", data );
-*/	
-/*		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t4" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "3" );
-		
-		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "func_recharge" );
-		if ( pEntity !is null )
-		{
-		//	g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "CustomStartSound", "items/suitchargeok1.wav" );
-			g_EntityFuncs.Remove( pEntity );
-		}
-*/		
+	{	
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m2" ) == 0 )
 	{
-/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td2" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
-*/
-/*		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
-		if ( pEntity !is null )
-		{
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}*/
-
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m3" ) == 0 )
 	{
-/*		bFixDoors = true;
-
-		data.targetname = "door1b";
-		data.fireonopening = "door1a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*1", data );
-
-		data.targetname = "door1a";
-		data.fireonopening = "door1b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*2", data );
-
-		data.targetname = "door2b";
-		data.fireonopening = "door2a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*11", data );
-
-		data.targetname = "door2a";
-		data.fireonopening = "door2b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*12", data );
-
-		data.targetname = "door3b";
-		data.fireonopening = "door3a";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*33", data );
-
-		data.targetname = "door3a";
-		data.fireonopening = "door3b";
-		data.m_fIgnoreTargetname = true;
-		data.wait = 0;
-		dDoors.set( "*34", data );
-*/
-/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t5" );
-		if ( pEntity !is null )
-		{
-			pEntity.pev.targetname = string_t( "button5" );
-		//	g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "30" );
-
-			CBaseButton@ pButton = cast<CBaseButton@>( pEntity );
-			
-			if ( pButton !is null )
-			{
-				pButton.m_flWait = 30;
-				pButton.m_fStayPushed = false;
-			}
-		}*/
-		
 		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t10" );
 		if ( pEntity !is null )
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "wait", "-1" );
-/*
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "model", "*49" );
-		if ( pEntity !is null )
-			pEntity.pev.targetname = string_t( "t5_door" );
 
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_goldkey" );
-
-		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
-		if ( pEntity !is null )
-		{
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "collect_limit", "0" ); // !!!
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}
-*/
-/*
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t1b" );
-		if ( pEntity !is null )
-			
-
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t1a" );
-		if ( pEntity !is null )
-*/
-/*
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t10" );
-		if ( pEntity !is null )
-			g_EntityFuncs.Remove( pEntity );
-*/
-/*
-		@pEntity = g_EntityFuncs.FindEntityByTargetname( null, "t666" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "target_on_fail", "" );
-
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t666" );
-		if ( pEntity !is null )
-			g_EntityFuncs.Remove( pEntity );
-*/
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m4" ) == 0 )
 	{
-/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "t116" );
-		if ( pEntity !is null )
-		{
-		//	pEntity.SetOrigin( Vector( 1790, 224, 920 ) );
-			pEntity.pev.target = string_t();
-		}
-
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "model", "*33" );
-		if ( pEntity !is null )
-			pEntity.pev.targetname = string_t();
-
-		@pEntity = null;
-		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", "t7" ) ) !is null )
-		{
-			if ( pEntity.GetClassname() != "trigger_relay" )
-				continue;
-
-			g_EntityFuncs.Remove( pEntity );
-		}
-
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
-
-		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
-		if ( pEntity !is null )
-		{
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}
-*/
-
 		@pEntity = null;
 		while ( ( @pEntity = g_EntityFuncs.FindEntityByString( pEntity, "target", "t120" ) ) !is null )
 		{
@@ -568,23 +348,6 @@ void q1_ActivateFixes()
 				pEntity.pev.spawnflags &= ~256;
 		}
 */
-/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_goldkey" );
-
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td2" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
-
-		@pEntity = null;
-
-		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "item_inventory" ) ) !is null )
-		{
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}
-*/	
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m6" ) == 0 )
@@ -592,24 +355,7 @@ void q1_ActivateFixes()
 		@pEntity = g_EntityFuncs.FindEntityByString( null, "model", "*47" );
 		if ( pEntity !is null )
 			pEntity.pev.targetname = string_t( "t52" );
-/*
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td2" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_goldkey" );
 
-		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
-
-		@pEntity = null;
-
-		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "item_inventory" ) ) !is null )
-		{
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}
-*/
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m7" ) == 0 )
@@ -625,39 +371,11 @@ void q1_ActivateFixes()
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "fadeout", "3" );
 			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "color", "100 250 250" );
 		}
-/*
-		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
-		if ( pEntity !is null )
-		{
-			@pEnt = g_EntityFuncs.Create( "item_security", pEntity.GetOrigin(), pEntity.pev.angles, true );
-			if ( pEnt !is null )
-			{
-				pEnt.pev.target = pEntity.pev.target;
-				pEnt.pev.model = pEntity.pev.model;
 
-				g_EntityFuncs.DispatchSpawn( pEnt.edict() );
-
-				g_EntityFuncs.Remove( pEntity );
-			}	
-		}
-*/	
 		bLoadEnts = true;
 	}
 	else if ( g_szCurrentMap.ICompare( "q1_e1m8" ) == 0 )
 	{
-/*		@pEntity = g_EntityFuncs.FindEntityByString( null, "target", "td1" );
-		if ( pEntity !is null )
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "pass_destroy_item_name", "item_silverkey" );
-
-		@pEntity = g_EntityFuncs.FindEntityByClassname( null, "item_inventory" );
-		if ( pEntity !is null )
-		{
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "carried_hidden", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_keep_on_death", "0" );
-			g_EntityFuncs.DispatchKeyValue( pEntity.edict(), "holder_timelimit", "300" );
-		}
-*/
-
 		@pEntity = null;
 
 		while ( ( @pEntity = g_EntityFuncs.FindEntityByClassname( pEntity, "func_plat" ) ) !is null )

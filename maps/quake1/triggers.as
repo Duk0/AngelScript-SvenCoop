@@ -132,7 +132,7 @@ class trigger_qteleport : ScriptBaseEntity
 			return;
 
 		Vector vecOrigin = pTarget.GetOrigin();
-		vecOrigin.z += 20;
+		vecOrigin.z += 30;
 
 		g_EntityFuncs.SetOrigin( pOther, vecOrigin );
 
@@ -271,7 +271,7 @@ class point_qteleport : ScriptBaseEntity
 			return;
 
 		Vector vecOrigin = pTarget.GetOrigin();
-		vecOrigin.z += 20;
+		vecOrigin.z += 30;
 
 		g_EntityFuncs.SetOrigin( pEntity, vecOrigin  );
 		
